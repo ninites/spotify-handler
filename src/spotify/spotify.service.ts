@@ -19,8 +19,17 @@ export class SpotifyService {
     redirectUri: this.redirectUri,
   });
 
-  scopes = ['user-read-private', 'user-read-email'];
+  scopes = [
+    'user-read-private',
+    'user-read-email',
+    'user-library-read',
+    'user-follow-read',
+  ];
   state = 'some-state-of-my-choice';
+
+  setAccessToken(token: string) {
+    this.spotifyApi.setAccessToken(token);
+  }
 
   login(): string {
     const authorizeURL = this.spotifyApi.createAuthorizeURL(this.scopes);
@@ -59,8 +68,7 @@ export class SpotifyService {
     const response: AxiosResponse = await token$;
     const data: SpotifyToken = response.data;
     const token = data.access_token;
-    this.spotifyApi.setAccessToken(token);
-    return true;
+    return token;
   }
 
   async getArtistById(id: string) {
@@ -70,6 +78,21 @@ export class SpotifyService {
 
   async getArtistByName(name: string) {
     const artists = await this.spotifyApi.searchArtists(name);
+    return artists;
+  }
+
+  async getMySavedAlbums() {
+    const albums = await this.spotifyApi.getMySavedAlbums({
+      limit: 1,
+      offset: 0,
+    });
+    return albums;
+  }
+
+  async getFollowedArtists() {
+    const artists = await this.spotifyApi.getFollowedArtists({
+      limit: 1,
+    });
     return artists;
   }
 }

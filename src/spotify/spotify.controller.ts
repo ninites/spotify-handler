@@ -1,8 +1,10 @@
 import { Controller, Get, Query, UseInterceptors } from '@nestjs/common';
 import { SpotifyErrorInterceptor } from './spotify-error.interceptor';
+import { SpotifyTokenInterceptor } from './spotify-token.interceptor';
 import { SpotifyService } from './spotify.service';
 
-@UseInterceptors(new SpotifyErrorInterceptor())
+@UseInterceptors(SpotifyTokenInterceptor)
+@UseInterceptors(SpotifyErrorInterceptor)
 @Controller('spotify')
 export class SpotifyController {
   constructor(private readonly spotifyService: SpotifyService) {}
@@ -26,6 +28,16 @@ export class SpotifyController {
       state: state,
       code: code,
     });
+  }
+
+  @Get('user/albums')
+  getMySavedAlbums() {
+    return this.spotifyService.getMySavedAlbums();
+  }
+
+  @Get('user/artists')
+  getFollowedArtists() {
+    return this.spotifyService.getFollowedArtists();
   }
 
   @Get('artist')
