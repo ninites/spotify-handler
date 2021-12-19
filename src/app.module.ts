@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { SchoolModule } from './school/school.module';
+import { SpotifyModule } from './spotify/spotify.module';
 
 @Module({
   imports: [
@@ -12,7 +12,7 @@ import { SchoolModule } from './school/school.module';
       isGlobal: true,
     }),
     MongooseModule.forRoot(process.env.MONGO_DB_URL),
-    SchoolModule,
+    SpotifyModule,
   ],
   controllers: [AppController],
   providers: [AppService],
