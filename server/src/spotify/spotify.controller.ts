@@ -1,4 +1,11 @@
-import { Controller, Get, Query, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  Redirect,
+  Res,
+  UseInterceptors,
+} from '@nestjs/common';
 import { SpotifyErrorInterceptor } from './spotify-error.interceptor';
 import { SpotifyTokenInterceptor } from './spotify-token.interceptor';
 import { SpotifyService } from './spotify.service';
@@ -14,20 +21,22 @@ export class SpotifyController {
   login() {
     const url = this.spotifyService.login();
     return url;
-    return { url: url };
+    // return { url: url };
   }
 
   @Get('callback')
-  callback(
+  async callback(
     @Query('scope') scope,
     @Query('state') state: string,
     @Query('code') code: string,
+    @Res({ passthrough: true }) res,
   ) {
-    return this.spotifyService.callback({
+    const token = await this.spotifyService.callback({
       scope: scope,
       state: state,
       code: code,
     });
+    res.cookie('spotify', token);
   }
 
   @Get('user/albums')
@@ -38,6 +47,11 @@ export class SpotifyController {
   @Get('user/artists')
   getFollowedArtists() {
     return this.spotifyService.getFollowedArtists();
+  }
+
+  @Get('user/missing-album')
+  getMissingsAlbums() {
+    return this.spotifyService.getMissingsAlbums();
   }
 
   @Get('artist')

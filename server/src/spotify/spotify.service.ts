@@ -72,9 +72,10 @@ export class SpotifyService {
   }
 
   async getArtistById(id: string) {
-    const artist = await this.spotifyApi.getArtistAlbums(id);
+    const artist = await this.spotifyApi.getArtist(id);
     return artist;
   }
+  
 
   async getArtistByName(name: string) {
     const artists = await this.spotifyApi.searchArtists(name);
@@ -82,17 +83,52 @@ export class SpotifyService {
   }
 
   async getMySavedAlbums() {
-    const albums = await this.spotifyApi.getMySavedAlbums({
-      limit: 1,
-      offset: 0,
-    });
+    const albums = await this.spotifyApi.getMySavedAlbums();
     return albums;
   }
 
   async getFollowedArtists() {
-    const artists = await this.spotifyApi.getFollowedArtists({
-      limit: 1,
-    });
+    const artists = await this.spotifyApi.getFollowedArtists();
     return artists;
+  }
+
+  async getArtistAlbums(id: string) {
+    const albums = await this.spotifyApi.getArtistAlbums(id);
+    return albums;
+  }
+
+  async getMissingsAlbums() {
+    const resp = await this.getMySavedAlbums();
+    const userAlbums = resp.body.items;
+    const userArtistWithAlbums = await this.getUserArtistWithAlbums();
+    const missingAlbums = userArtistWithAlbums.map((artistAlbums) => {
+      const filteredAlbums = artistAlbums.albums.filter((album) => {
+        return userAlbums.some((userAlbum) => userAlbum.album.id === album.id);
+      });
+      
+      return {
+        artist: artistAlbums.artist,
+        artist_missing_albums: filteredAlbums,
+      };
+    });
+    
+    return missingAlbums;
+  }
+
+  private async getUserArtistWithAlbums(): Promise<
+    { id: string; albums: { [key: string]: any } }[] | unknown[]
+  > {
+    const response = await this.getFollowedArtists();
+    const userArtists = response.body.artists.items;
+    const artistsWithTheirAlbums = await Promise.all(
+      userArtists.map(async (artist) => {
+        const artistAlbums = await this.getArtistAlbums(artist.id);
+        return {
+          artist: artist,
+          albums: artistAlbums.body.items,
+        };
+      }),
+    );
+    return artistsWithTheirAlbums;
   }
 }
