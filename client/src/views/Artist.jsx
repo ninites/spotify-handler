@@ -25,26 +25,25 @@ const Artist = () => {
     setDisplayLogin(false);
   };
 
-  const missingAlbums = async () => {
-    const url = 'http://localhost:3000/spotify/user/missing-album';
-    const headers = {
-      authorization: 'Bearer ' + cookies.spotify,
-    };
-    try {
-      const response = await axios.get(url, { headers: headers });
-      console.log(response);
-      setArtists(response.data);
-    } catch (err) {
-      console.log(err);
-      setErrorDialog({
-        display: true,
-        message: err.message,
-      });
-    }
-  };
-
   useEffect(() => {
     if (cookies.spotify) {
+      const missingAlbums = async () => {
+        const url = 'http://localhost:3000/spotify/user/missing-album';
+        const headers = {
+          authorization: 'Bearer ' + cookies.spotify,
+        };
+        try {
+          const response = await axios.get(url, { headers: headers });
+          console.log(response);
+          setArtists(response.data);
+        } catch (err) {
+          console.log(err);
+          setErrorDialog({
+            display: true,
+            message: err.message,
+          });
+        }
+      };
       missingAlbums();
     } else {
       login();
