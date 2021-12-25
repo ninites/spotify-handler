@@ -68,6 +68,7 @@ export class SpotifyService {
     const response: AxiosResponse = await token$;
     const data: SpotifyToken = response.data;
     const token = data.access_token;
+    
     return token;
   }
 

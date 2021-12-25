@@ -11,7 +11,7 @@ import { SpotifyModule } from './spotify/spotify.module';
       envFilePath: '.env',
       isGlobal: true,
     }),
-    MongooseModule.forRoot(process.env.MONGO_DB_URL),
+    // MongooseModule.forRoot(process.env.MONGO_DB_URL),
     SpotifyModule,
   ],
   controllers: [AppController],
