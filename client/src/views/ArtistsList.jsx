@@ -27,7 +27,7 @@ const ArtistsList = () => {
                 header={
                   <Link to={`/artists/${artist.id}`}>
 
-                    <div className="h-10rem bg-primary bg-no-repeat bg-cover cursor-pointer" style={{ backgroundImage: `url(${artist.images[2].url})` }} >
+                    <div className="h-10rem bg-primary bg-no-repeat bg-center bg-cover cursor-pointer" style={{ backgroundImage: `url(${artist.images[2].url})` }} >
                     </div>
                   </Link>
                 }

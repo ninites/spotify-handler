@@ -6,7 +6,7 @@ import "primeicons/primeicons.css";
 import "/node_modules/primeflex/primeflex.css"
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -18,6 +18,7 @@ function App() {
   const [displayLogin, setDisplayLogin] = useState(false);
   const [spotifyUrl, setSpotifyUrl] = useState('');
   const [cookies, setCookie] = useCookies(['spotify']);
+  const loginDialogRef = useRef()
   const [errorDialog, setErrorDialog] = useState({
     display: false,
     message: '',
@@ -37,9 +38,8 @@ function App() {
 
   const launchLog = async () => {
     const log = await axios.get('http://localhost:3000/spotify/login');
-
+    console.log(log);
     setSpotifyUrl(log.data);
-    setDisplayLogin(false);
   };
 
   useEffect(() => {
@@ -48,7 +48,9 @@ function App() {
     }
   }, [cookies])
 
-
+  useEffect(() => {
+    console.log(loginDialogRef);
+  }, [loginDialogRef])
 
   return (
     <div className="App">
@@ -60,13 +62,8 @@ function App() {
           onHide={() => setDisplayLogin(false)}
         >
           {spotifyUrl && (
-            <iframe
-              id="inlineFrameExample"
-              title="Inline Frame Example"
-              width="300"
-              height="200"
-              src={spotifyUrl}
-            ></iframe>
+            <div ref={loginDialogRef}>
+            </div>
           )}
           <Button label="Login to spotify" onClick={launchLog} />
         </Dialog>

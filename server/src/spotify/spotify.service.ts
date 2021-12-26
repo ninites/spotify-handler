@@ -7,7 +7,7 @@ import { SpotifyToken } from './spotify.interface';
 
 @Injectable()
 export class SpotifyService {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(private readonly httpService: HttpService) { }
 
   clientId = process.env.SPOTIFY_CLIENTID;
   clientSecret = process.env.SPOTIFY_CLIENTSECRET;
@@ -68,7 +68,7 @@ export class SpotifyService {
     const response: AxiosResponse = await token$;
     const data: SpotifyToken = response.data;
     const token = data.access_token;
-    
+
     return token;
   }
 
@@ -76,7 +76,7 @@ export class SpotifyService {
     const artist = await this.spotifyApi.getArtist(id);
     return artist;
   }
-  
+
 
   async getArtistByName(name: string) {
     const artists = await this.spotifyApi.searchArtists(name);
@@ -94,7 +94,11 @@ export class SpotifyService {
   }
 
   async getArtistAlbums(id: string) {
-    const albums = await this.spotifyApi.getArtistAlbums(id);
+    const albums = await this.spotifyApi.getArtistAlbums(id, {
+      offset: 0,
+      include_groups: "album",
+      market: "FR"
+    });
     return albums;
   }
 
@@ -106,14 +110,40 @@ export class SpotifyService {
       const filteredAlbums = artistAlbums.albums.filter((album) => {
         return userAlbums.some((userAlbum) => userAlbum.album.id === album.id);
       });
-      
+
       return {
         artist: artistAlbums.artist,
         artist_missing_albums: filteredAlbums,
       };
     });
-    
+
     return missingAlbums;
+  }
+
+  async getMissingAlbumsById(id: string) {
+    const artistsAlbums = await this.getArtistAlbums(id)
+    const userAlbums = await this.getMySavedAlbums()
+    const artistsLPs = this.removeDuplicate(artistsAlbums.body.items)
+    const missingAlbums = artistsLPs.filter((album) => {
+      const userGotAlbum = userAlbums.body.items.find((userAlbum) => {
+        return userAlbum.album.name === album.name
+      })
+      return userGotAlbum ? false : true
+    })
+    return missingAlbums
+  }
+
+  private removeDuplicate(albums: { [key: string]: any }[]): { [key: string]: any }[] {
+    const result = []
+    albums.forEach((album) => {
+      const alreadyHere = result.find((albumKeeped) => {
+        return albumKeeped.name === album.name
+      })
+      if (!alreadyHere) {
+        result.push(album)
+      }
+    })
+    return result
   }
 
   private async getUserArtistWithAlbums(): Promise<

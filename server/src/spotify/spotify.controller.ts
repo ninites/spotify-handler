@@ -50,9 +50,15 @@ export class SpotifyController {
   }
 
   @Get('user/missing-album')
-  getMissingsAlbums() {
+  getMissingsAlbums(
+    @Query('id') id : string
+  ) {
+    if(id) {
+      return this.spotifyService.getMissingAlbumsById(id)
+    }
     return this.spotifyService.getMissingsAlbums();
   }
+
 
   @Get('artist')
   getAlbum(@Query('id') id: string, @Query('name') name: string) {
