@@ -6,19 +6,19 @@ import "primeicons/primeicons.css";
 import "/node_modules/primeflex/primeflex.css"
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import ArtistsList from './views/ArtistsList';
-import Artist from './views/Artist';
+import Main from './routes/main';
+import JustLogggedContext from './contexts/just-logged';
+
 
 
 function App() {
+  const [justLogged, setJustLogged] = useState(false)
+  useContext(JustLogggedContext)
   const [displayLogin, setDisplayLogin] = useState(false);
-  const [spotifyUrl, setSpotifyUrl] = useState('');
   const [cookies, setCookie] = useCookies(['spotify']);
-  const loginDialogRef = useRef()
   const [errorDialog, setErrorDialog] = useState({
     display: false,
     message: '',
@@ -38,8 +38,7 @@ function App() {
 
   const launchLog = async () => {
     const log = await axios.get('http://localhost:3000/spotify/login');
-    console.log(log);
-    setSpotifyUrl(log.data);
+    window.open(log.data, 'Spotify Login', 'toolbar=no,location=no,directories=no,status=no, menubar=no,scrollbars=no,resizable=no,width=300,height=600')
   };
 
   useEffect(() => {
@@ -49,8 +48,11 @@ function App() {
   }, [cookies])
 
   useEffect(() => {
-    console.log(loginDialogRef);
-  }, [loginDialogRef])
+    if (justLogged) {
+      window.location.reload()
+    }
+  }, [justLogged])
+
 
   return (
     <div className="App">
@@ -61,10 +63,6 @@ function App() {
           style={{ width: '50vw' }}
           onHide={() => setDisplayLogin(false)}
         >
-          {spotifyUrl && (
-            <div ref={loginDialogRef}>
-            </div>
-          )}
           <Button label="Login to spotify" onClick={launchLog} />
         </Dialog>
 
@@ -76,13 +74,9 @@ function App() {
         >
           {errorDialog.message}
         </Dialog>
-        <BrowserRouter>
-          <Routes>
-            <Route path="artists" element={<ArtistsList />} />
-            <Route path="artists/:id" element={<Artist />} />
-
-          </Routes>
-        </BrowserRouter>
+        <JustLogggedContext.Provider value={[justLogged, setJustLogged]}>
+          <Main></Main>
+        </JustLogggedContext.Provider>
       </header>
     </div>
   );

@@ -1,1 +1,3 @@
-export class CreateSpotifyDto {}
+export class CreateSpotifyDto {
+    id: string
+}

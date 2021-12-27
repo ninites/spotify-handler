@@ -1,12 +1,10 @@
 import { Card } from 'primereact/card';
 import { useEffect, useState } from 'react';
-import useRequest from '../customhooks/useRequest';
+import useRequest from '../../customhooks/useRequest';
 import { Link } from "react-router-dom"
 const ArtistsList = () => {
   const artistsRequest = useRequest("get", 'http://localhost:3000/spotify/user/artists');
   const [artists, setArtists] = useState([])
-
-
 
   useEffect(() => {
     const gotAnswer = artistsRequest.data.length !== 0

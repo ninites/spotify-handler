@@ -24,6 +24,8 @@ export class SpotifyService {
     'user-read-email',
     'user-library-read',
     'user-follow-read',
+    "user-library-modify",
+    "user-follow-modify"
   ];
   state = 'some-state-of-my-choice';
 
@@ -97,7 +99,6 @@ export class SpotifyService {
     const albums = await this.spotifyApi.getArtistAlbums(id, {
       offset: 0,
       include_groups: "album",
-      market: "FR"
     });
     return albums;
   }
@@ -161,5 +162,10 @@ export class SpotifyService {
       }),
     );
     return artistsWithTheirAlbums;
+  }
+
+  async addToMySavedAlbums(id: string) {
+    const newAlbum = this.spotifyApi.addToMySavedAlbums([id])
+    return newAlbum
   }
 }
