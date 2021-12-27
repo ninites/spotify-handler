@@ -16,11 +16,11 @@ const ArtistsList = () => {
   }, [artistsRequest])
 
   return (
-    <div className="grid">
+    <div className="flex flex-wrap card-container">
       {artists
         .map((artist) => {
           return (
-            <div key={artist.id} className="col-2">
+            <div key={artist.id} className="flex-initial flex align-items-center justify-content-center m-2">
               <Card
                 header={
                   <Link to={`/artists/${artist.id}`}>
@@ -29,6 +29,7 @@ const ArtistsList = () => {
                     </div>
                   </Link>
                 }
+                style={{ width: '15rem' }}
               >
                 {artist.name}
               </Card>
