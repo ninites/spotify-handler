@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route , Navigate } from "react-router-dom";
 import ArtistsList from "../views/artists/ArtistsList";
 import Artist from "../views/artists/Artist";
 import LoginRedirect from "../views/login/login-redirect/LoginRedirect.jsx";
@@ -13,14 +13,14 @@ const Main = () => {
         <Route element={<Layout />}>
           <Route path="login-redirect" element={<LoginRedirect />} />
           <Route path="login" element={<Login />} />
-          <Route
+          <Route 
             path="/artists"
             element={
               <RequireAuth redirectTo="/login">
                 <ArtistsList />
               </RequireAuth>
             }
-          ></Route>
+          />
           <Route
             path="/artists/:id"
             element={
@@ -28,7 +28,9 @@ const Main = () => {
                 <Artist />
               </RequireAuth>
             }
-          ></Route>
+          />
+          <Route path="/" element={<Navigate to="/artists"/>}/>
+          <Route path="*" element={<Navigate to="/artists"/>}/>
         </Route>
       </Routes>
     </BrowserRouter>
