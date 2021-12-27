@@ -18,7 +18,9 @@ const Layout = () => {
     ]
     return <div>
         <Menubar model={items} className="top-bar-menu"></Menubar>
+        <div className="layout-center">
         <Outlet />
+        </div>
     </div>
 }
 

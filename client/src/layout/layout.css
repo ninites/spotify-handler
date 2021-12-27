@@ -1,5 +1,12 @@
 .top-bar-menu {
     position: fixed;
     width: 100%;
+    top: 0;
+    left: 0;
 }
 
+.layout-center {
+    margin-top: 58px;
+    display: flex;
+    justify-content: center;
+}
