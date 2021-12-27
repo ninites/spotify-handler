@@ -9,12 +9,11 @@ const Login = () => {
   const launchLog = async () => {
     if (!cookies.spotify) {
       const log = await axios.get("http://localhost:3000/spotify/login");
-      window.open(
+      const loginPopUp = window.open(
         log.data,
         "Spotify Login",
         "toolbar=no,location=no,directories=no,status=no, menubar=no,scrollbars=no,resizable=no,width=300,height=600"
       );
-      window.location.reload();
     } else {
         navigate('/artists')
     }

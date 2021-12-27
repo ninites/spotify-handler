@@ -1,8 +1,14 @@
 import { useEffect } from "react";
+import { useCookies } from "react-cookie";
 
 const LoginRedirect = () => {
+  const [cookies, setCookie] = useCookies(["spotify"]);
+
   const closeWindow = () => {
-    window.close();
+    if(cookies.spotify) {
+      window.opener.location = "/";
+      window.close();
+    }
   };
 
   useEffect(() => {
