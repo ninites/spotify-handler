@@ -78,6 +78,11 @@ export class SpotifyController {
     return this.spotifyService.getMissingsAlbums();
   }
 
+  @Get('user/new-releases')
+  getNewReleases() {
+    return this.spotifyService.getNewReleases()
+  }
+
   @Get('user/album/tracks/:id')
   getAlbumTracks(
     @Param('id') id: string

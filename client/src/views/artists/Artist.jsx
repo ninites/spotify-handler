@@ -74,7 +74,7 @@ const Artist = () => {
   return (
     <div className="m-2 p-fluid w-full flex flex-wrap justify-content-center">
       <div className="">
-        <div className="text-4xl">{artist.name}</div>
+        <div className="font-semibold mt-2 mb-2">{artist.name.toUpperCase()}</div>
         <div
           className="h-10rem bg-primary bg-no-repeat bg-center bg-cover"
           style={{
@@ -83,7 +83,7 @@ const Artist = () => {
         ></div>
       </div>
       <div className="missing-albums">
-        <div className="ml-2 mt-2">Albums manquants</div>
+        <div className="ml-2 mt-2 font-semibold">ALBUMS MANQUANTS</div>
         <div className="flex flex-wrap card-container  displayed-albums">
           {albumsToDisplay.length === 0 && (
             <p>Vous avez tous les albums de cet artiste</p>

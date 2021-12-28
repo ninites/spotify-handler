@@ -127,8 +127,62 @@ export class SpotifyService {
         fetchLoop = false
       }
     }
-    
+
     return artistsList
+  }
+
+  async getNewReleases() {
+    const newReleases = await this.getAllNewReleases()
+    const newReleasesItems = newReleases.body.albums.items
+    const missingReleases = await this.getNewReleasesForUser(newReleasesItems)
+    return missingReleases
+  }
+
+  private async getNewReleasesForUser(newReleasesItems) {
+    const userArtists = await this.getAllFollowedArtists()
+    const userArtistsNames: string[] = this.extractArtistsNames(userArtists.body.artists.items)
+    return newReleasesItems.filter((item) => {
+      const artistIsPresent = item.artists.map((artist) => {
+        return userArtistsNames.includes(artist.name)
+      })
+      return artistIsPresent.includes(true)
+    })
+  }
+
+  private async getAllNewReleases() {
+    const newReleaseList = {
+      body: {
+        albums: {
+          items: []
+        }
+      }
+    }
+    let fetchLoop = true
+    let offset = 0
+
+    while (fetchLoop) {
+      const config: any = {
+        limit: 50,
+        offset: offset,
+        country: "FR"
+      }
+
+      const releaseResponse = await this.spotifyApi.getNewReleases(config)
+      const releasesItems = releaseResponse.body.albums.items
+      newReleaseList.body.albums.items.push(...releasesItems)
+
+      offset += 20
+      if (releasesItems.length === 0) {
+        fetchLoop = false
+      }
+    }
+    return newReleaseList
+  }
+
+  private extractArtistsNames(items) {
+    return items.map((item) => {
+      return item.name
+    })
   }
 
   async getAlbumTracks(id: string) {
