@@ -95,6 +95,11 @@ export class SpotifyService {
     return artists;
   }
 
+  async getAlbumTracks(id: string) {
+    const tracks = await this.spotifyApi.getAlbumTracks(id)
+    return tracks
+  }
+
   async getArtistAlbums(id: string) {
     const albums = await this.spotifyApi.getArtistAlbums(id, {
       offset: 0,

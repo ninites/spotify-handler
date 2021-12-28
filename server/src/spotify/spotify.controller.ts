@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Query,
   Redirect,
@@ -71,6 +72,12 @@ export class SpotifyController {
     return this.spotifyService.getMissingsAlbums();
   }
 
+  @Get('user/album/tracks/:id')
+  getAlbumTracks(
+    @Param('id') id: string
+  ) {
+    return this.spotifyService.getAlbumTracks(id)
+  }
 
 
   @Get('artist')

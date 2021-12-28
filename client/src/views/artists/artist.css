@@ -1,0 +1,16 @@
+.missing-albums {
+    width: 900px;
+}
+
+.album-card-content {
+}
+
+@media screen and (max-width: 900px) {
+    .missing-albums {
+        width: 100%;
+    }
+
+    .displayed-albums {
+        justify-content: center !important;
+    }
+}

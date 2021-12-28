@@ -31,11 +31,12 @@ const Layout = () => {
     const artist = findArtist(item);
     return (
       <div className="flex">
-        <img
-          src={artist.images[0].url}
-          alt="artist"
-          className="w-1 flex-initial flex align-items-center justify-content-center mr-2"
-        />
+        <div
+          className="w-2 flex-initial flex align-items-center justify-content-center mr-2 bg-no-repeat bg-cover bg-center"
+          style={{
+            backgroundImage: `url(${artist.images[0].url})`,
+          }}
+        ></div>
         <p className="flex-initial flex align-items-center justify-content-center">
           {artist.name}
         </p>
@@ -66,9 +67,14 @@ const Layout = () => {
 
   const items = [
     {
-      label: "Artists",
+      label: "Mes artistes",
       icon: "pi pi-fw pi-star",
       command: () => redirect("artists"),
+    },
+    {
+      label: "Les sorties",
+      icon: "pi pi-fw pi-star",
+      command: () => redirect("brand-new"),
     },
   ];
 

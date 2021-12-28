@@ -13,7 +13,7 @@ const Main = () => {
   const [artists, setArtists] = useState([]);
   const artistsRequest = useRequest(
     "get",
-    "http://localhost:3000/spotify/user/artists"
+    "/spotify/user/artists"
   );
 
   useEffect(() => {

@@ -8,7 +8,7 @@ const Login = () => {
 
   const launchLog = async () => {
     if (!cookies.spotify) {
-      const log = await axios.get("http://localhost:3000/spotify/login");
+      const log = await axios.get("/spotify/login");
       const loginPopUp = window.open(
         log.data,
         "Spotify Login",
