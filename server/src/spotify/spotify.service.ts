@@ -135,8 +135,10 @@ export class SpotifyService {
     const newReleases = await this.getAllNewReleases()
     const newReleasesItems = newReleases.body.albums.items
     const missingReleases = await this.getNewReleasesForUser(newReleasesItems)
-    return missingReleases
+    const result = this.removeDuplicate(missingReleases, "id")
+    return result
   }
+
 
   private async getNewReleasesForUser(newReleasesItems) {
     const userArtists = await this.getAllFollowedArtists()
@@ -219,7 +221,7 @@ export class SpotifyService {
   async getMissingAlbumsById(id: string) {
     const artistsAlbums = await this.getArtistAlbums(id)
     const userAlbums = await this.getMySavedAlbums()
-    const artistsLPs = this.removeDuplicate(artistsAlbums.body.items)
+    const artistsLPs = this.removeDuplicate(artistsAlbums.body.items, "name")
     const missingAlbums = artistsLPs.filter((album) => {
       const userGotAlbum = userAlbums.body.items.find((userAlbum) => {
         return userAlbum.album.name === album.name
@@ -229,11 +231,11 @@ export class SpotifyService {
     return missingAlbums
   }
 
-  private removeDuplicate(albums: { [key: string]: any }[]): { [key: string]: any }[] {
+  private removeDuplicate(array: { [key: string]: any }[], compareValue: string): { [key: string]: any }[] {
     const result = []
-    albums.forEach((album) => {
-      const alreadyHere = result.find((albumKeeped) => {
-        return albumKeeped.name === album.name
+    array.forEach((album) => {
+      const alreadyHere = result.find((arrayKeeped) => {
+        return arrayKeeped[compareValue] === album[compareValue]
       })
       if (!alreadyHere) {
         result.push(album)

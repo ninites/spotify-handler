@@ -8,13 +8,11 @@ import Login from "../views/login/login-redirect/login";
 import { useContext, useEffect, useState } from "react";
 import ArtistContext from "../contexts/artists-context";
 import useRequest from "../customhooks/useRequest";
+import Releases from "../views/releases/releases";
 
 const Main = () => {
   const [artists, setArtists] = useState([]);
-  const artistsRequest = useRequest(
-    "get",
-    "/spotify/user/artists"
-  );
+  const artistsRequest = useRequest("get", "/spotify/user/artists");
 
   useEffect(() => {
     const gotAnswer = artistsRequest.data.length !== 0;
@@ -45,6 +43,14 @@ const Main = () => {
               element={
                 <RequireAuth redirectTo="/login">
                   <Artist />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/new-releases"
+              element={
+                <RequireAuth redirectTo="/login">
+                  <Releases />
                 </RequireAuth>
               }
             />

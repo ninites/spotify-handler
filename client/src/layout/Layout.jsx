@@ -74,7 +74,7 @@ const Layout = () => {
     {
       label: "Les sorties",
       icon: "pi pi-fw pi-star",
-      command: () => redirect("brand-new"),
+      command: () => redirect("new-releases"),
     },
   ];
 
