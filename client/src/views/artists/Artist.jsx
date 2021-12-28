@@ -119,7 +119,14 @@ const Artist = () => {
                       <OverlayPanel ref={trackList}>
                         {tracks &&
                           tracks.map((track) => {
-                            return <div>{track.name}</div>;
+                            return (
+                              <div key={track.id} className="flex">
+                                <div className="font-semibold mr-2">
+                                  {track.track_number}
+                                </div>
+                                <div>{track.name}</div>
+                              </div>
+                            );
                           })}
                       </OverlayPanel>
                     </div>

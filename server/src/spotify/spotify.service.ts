@@ -90,9 +90,45 @@ export class SpotifyService {
     return albums;
   }
 
-  async getFollowedArtists() {
-    const artists = await this.spotifyApi.getFollowedArtists();
+  async getFollowedArtists(offset: number, limit: number) {
+    const artists = await this.spotifyApi.getFollowedArtists({
+      limit: limit,
+      offset: offset
+    });
     return artists;
+  }
+
+  async getAllFollowedArtists() {
+    const artistsList = {
+      body: {
+        artists: {
+          items: []
+        }
+      }
+    }
+    let fetchLoop = true
+    let after = ""
+
+    while (fetchLoop) {
+      const config: any = {
+        limit: 50
+      }
+      if (after) {
+        config.after = after
+      }
+
+      const artistsListRequest = await this.spotifyApi.getFollowedArtists(config)
+      const artistsItems = artistsListRequest.body.artists.items
+      artistsList.body.artists.items.push(...artistsItems)
+      const lastArtist = artistsItems[config.limit - 1]
+      after = lastArtist ? lastArtist.id : ""
+
+      if (!after) {
+        fetchLoop = false
+      }
+    }
+    
+    return artistsList
   }
 
   async getAlbumTracks(id: string) {
@@ -155,7 +191,7 @@ export class SpotifyService {
   private async getUserArtistWithAlbums(): Promise<
     { id: string; albums: { [key: string]: any } }[] | unknown[]
   > {
-    const response = await this.getFollowedArtists();
+    const response = await this.getFollowedArtists(0, 50);
     const userArtists = response.body.artists.items;
     const artistsWithTheirAlbums = await Promise.all(
       userArtists.map(async (artist) => {

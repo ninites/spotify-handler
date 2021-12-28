@@ -58,8 +58,14 @@ export class SpotifyController {
   }
 
   @Get('user/artists')
-  getFollowedArtists() {
-    return this.spotifyService.getFollowedArtists();
+  getFollowedArtists(
+    @Query('offset') offset: number,
+    @Query('limit') limit: number
+  ) {
+    if (!offset && !limit) {
+      return this.spotifyService.getAllFollowedArtists()
+    }
+    return this.spotifyService.getFollowedArtists(offset, limit);
   }
 
   @Get('user/missing-album')
