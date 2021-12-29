@@ -1,24 +1,13 @@
-import { useEffect, useState } from "react";
-import useRequest from "../../customhooks/useRequest";
+import { useContext } from "react";
 import { Card } from "primereact/card";
-import { ProgressSpinner } from "primereact/progressspinner";
+import ReleasesContext from "../../contexts/releases-context";
 
 const Releases = () => {
-  const newReleasesResponse = useRequest("get", "/spotify/user/new-releases");
-  const [releases, setReleases] = useState([]);
-  const [isLoading, setisLoading] = useState(false);
-
-  useEffect(() => {
-    setReleases(newReleasesResponse.data);
-  }, [newReleasesResponse]);
-
-  useEffect(() => {
-    setisLoading(newReleasesResponse.isLoading);
-  }, [newReleasesResponse.isLoading]);
-
+  const { data } = useContext(ReleasesContext);
+  const [releases] = data;
+  
   return (
     <div className="m-2">
-      {isLoading && <ProgressSpinner />}
       {releases.map((release) => {
         return (
           <div key={release.id} className="m-2">

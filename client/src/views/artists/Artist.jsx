@@ -9,21 +9,28 @@ import ArtistContext from "../../contexts/artists-context";
 import { OverlayPanel } from "primereact/overlaypanel";
 
 import "./artist.css";
+import ReleasesContext from "../../contexts/releases-context";
 
 const Artist = () => {
   let params = useParams();
+
+  const { refresh } = useContext(ReleasesContext);
+  const [refetchReleases, setRefetchReleases] = refresh;
+
   const [artists] = useContext(ArtistContext);
   const [artist, setArtist] = useState({
     name: "",
     images: [{ url: "" }],
   });
+
   const [refetch, setRefetch] = useState(false);
   const albums = useRequest(
     "get",
-    "/spotify/user/missing-album?id=" + params.id,
+    "/spotify/missing-albums?id=" + params.id,
     refetch
   );
   const [albumsToDisplay, setAlbumsToDisplay] = useState([]);
+  
   const [tracks, setTracks] = useState([]);
   const trackList = useRef(null);
 
@@ -39,7 +46,7 @@ const Artist = () => {
   };
 
   const showTrackList = async (e, album) => {
-    const url = "/spotify/user/album/tracks/" + album.id;
+    const url = "/spotify/album/tracks/" + album.id;
     const tracksResponse = await axios.get(url);
     const tracks = tracksResponse.data.body.items;
     if (tracks) {
@@ -53,8 +60,9 @@ const Artist = () => {
       id: id,
     };
     try {
-      await axios.post("/spotify/user/albums", data);
+      await axios.post("/spotify/saved-albums", data);
       setRefetch(!refetch);
+      setRefetchReleases(!refetchReleases);
     } catch (err) {
       console.log(err);
     }
@@ -74,7 +82,9 @@ const Artist = () => {
   return (
     <div className="m-2 p-fluid w-full flex flex-wrap justify-content-center">
       <div className="">
-        <div className="font-semibold mt-2 mb-2">{artist.name.toUpperCase()}</div>
+        <div className="font-semibold mt-2 mb-2">
+          {artist.name.toUpperCase()}
+        </div>
         <div
           className="h-10rem bg-primary bg-no-repeat bg-center bg-cover"
           style={{

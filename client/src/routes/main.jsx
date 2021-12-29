@@ -9,10 +9,18 @@ import { useContext, useEffect, useState } from "react";
 import ArtistContext from "../contexts/artists-context";
 import useRequest from "../customhooks/useRequest";
 import Releases from "../views/releases/releases";
+import ReleasesContext from "../contexts/releases-context";
 
 const Main = () => {
   const [artists, setArtists] = useState([]);
-  const artistsRequest = useRequest("get", "/spotify/user/artists");
+  const [releases, setReleases] = useState([]);
+  const [refetchReleases, setRefetchReleases] = useState(false);
+  const artistsRequest = useRequest("get", "/spotify/followed-artists");
+  const newReleasesResponse = useRequest(
+    "get",
+    "/spotify/new-releases",
+    refetchReleases
+  );
 
   useEffect(() => {
     const gotAnswer = artistsRequest.data.length !== 0;
@@ -22,42 +30,55 @@ const Main = () => {
     }
   }, [artistsRequest]);
 
+  useEffect(() => {
+    setReleases(newReleasesResponse.data);
+  }, [newReleasesResponse]);
+
   useContext(ArtistContext);
+  useContext(ReleasesContext);
+
   return (
     <BrowserRouter>
       <ArtistContext.Provider value={[artists, setArtists]}>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="login-redirect" element={<LoginRedirect />} />
-            <Route path="login" element={<Login />} />
-            <Route
-              path="/artists"
-              element={
-                <RequireAuth redirectTo="/login">
-                  <ArtistsList />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/artists/:id"
-              element={
-                <RequireAuth redirectTo="/login">
-                  <Artist />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/new-releases"
-              element={
-                <RequireAuth redirectTo="/login">
-                  <Releases />
-                </RequireAuth>
-              }
-            />
-            <Route path="/" element={<Navigate to="/artists" />} />
-            <Route path="*" element={<Navigate to="/artists" />} />
-          </Route>
-        </Routes>
+        <ReleasesContext.Provider
+          value={{
+            data: [releases, setReleases],
+            refresh: [refetchReleases, setRefetchReleases],
+          }}
+        >
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="login-redirect" element={<LoginRedirect />} />
+              <Route path="login" element={<Login />} />
+              <Route
+                path="/artists"
+                element={
+                  <RequireAuth redirectTo="/login">
+                    <ArtistsList />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/artists/:id"
+                element={
+                  <RequireAuth redirectTo="/login">
+                    <Artist />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/new-releases"
+                element={
+                  <RequireAuth redirectTo="/login">
+                    <Releases />
+                  </RequireAuth>
+                }
+              />
+              <Route path="/" element={<Navigate to="/artists" />} />
+              <Route path="*" element={<Navigate to="/artists" />} />
+            </Route>
+          </Routes>
+        </ReleasesContext.Provider>
       </ArtistContext.Provider>
     </BrowserRouter>
   );

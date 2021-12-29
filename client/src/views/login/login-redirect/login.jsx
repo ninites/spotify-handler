@@ -2,13 +2,14 @@ import axios from "axios";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
+
 const Login = () => {
   const [cookies, setCookie] = useCookies(["spotify"]);
   const navigate = useNavigate();
 
   const launchLog = async () => {
     if (!cookies.spotify) {
-      const log = await axios.get("/spotify/login");
+      const log = await axios.get("/auth/spotify/login");
       const loginPopUp = window.open(
         log.data,
         "Spotify Login",

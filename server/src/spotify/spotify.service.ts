@@ -1,77 +1,27 @@
-import { HttpService } from '@nestjs/axios';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { AxiosResponse } from 'axios';
+import { Injectable } from '@nestjs/common';
 import * as SpotifyWebApi from 'spotify-web-api-node';
-import * as qs from 'qs';
-import { SpotifyToken } from './spotify.interface';
 
 @Injectable()
 export class SpotifyService {
-  constructor(private readonly httpService: HttpService) { }
+  constructor() { }
 
   clientId = process.env.SPOTIFY_CLIENTID;
   clientSecret = process.env.SPOTIFY_CLIENTSECRET;
-  redirectUri = process.env.SPOTIFY_CALLBACK;
 
   spotifyApi = new SpotifyWebApi({
     clientId: this.clientId,
     clientSecret: this.clientSecret,
-    redirectUri: this.redirectUri,
   });
 
-  scopes = [
-    'user-read-private',
-    'user-read-email',
-    'user-library-read',
-    'user-follow-read',
-    "user-library-modify",
-    "user-follow-modify"
-  ];
-  state = 'some-state-of-my-choice';
-
-  setAccessToken(token: string) {
-    this.spotifyApi.setAccessToken(token);
-  }
-
-  login(): string {
-    const authorizeURL = this.spotifyApi.createAuthorizeURL(this.scopes);
-    return authorizeURL;
-  }
-
-  async callback({ scope, state, code }) {
-    if (!code) {
-      throw new HttpException(
-        '[SPOTIFY/CALLBACK] no code ',
-        HttpStatus.NOT_FOUND,
-      );
+  setTokens(tokens: { access_token: string, refresh_token: string }) {
+    const { access_token, refresh_token } = tokens
+    if (access_token) {
+      this.spotifyApi.setAccessToken(access_token);
     }
 
-    const payload = {
-      code: code,
-      redirect_uri: this.redirectUri,
-      grant_type: 'authorization_code',
-    };
-
-    const stringPayload = qs.stringify(payload);
-
-    const headers = {
-      Authorization:
-        'Basic ' +
-        Buffer.from(this.clientId + ':' + this.clientSecret).toString('base64'),
-      'Content-Type': 'application/x-www-form-urlencoded',
-    };
-
-    const token$ = this.httpService
-      .post(process.env.SPOTIFY_GETTOKEN, stringPayload, {
-        headers: headers,
-      })
-      .toPromise();
-
-    const response: AxiosResponse = await token$;
-    const data: SpotifyToken = response.data;
-    const token = data.access_token;
-
-    return token;
+    if (refresh_token) {
+      this.spotifyApi.setRefreshToken(refresh_token)
+    }
   }
 
   async getArtistById(id: string) {
@@ -134,11 +84,27 @@ export class SpotifyService {
   async getNewReleases() {
     const newReleases = await this.getAllNewReleases()
     const newReleasesItems = newReleases.body.albums.items
+    const missingReleases = await this.getMissingReleases(newReleasesItems)
+    return missingReleases
+  }
+
+  private async getMissingReleases(newReleasesItems) {
     const missingReleases = await this.getNewReleasesForUser(newReleasesItems)
-    const result = this.removeDuplicate(missingReleases, "id")
+    const releasesWithoutDups = this.removeDuplicate(missingReleases, "id")
+    const result = await this.filterByUserPossesion(releasesWithoutDups)
     return result
   }
 
+  private async filterByUserPossesion(data) {
+    const userAlbums = await this.getMySavedAlbums()
+    const savedAlbumsIds = userAlbums.body.items.map((item) => {
+      return item.album.id
+    })
+    const result = data.filter((album) => {
+      return !savedAlbumsIds.includes(album.id)
+    })
+    return result
+  }
 
   private async getNewReleasesForUser(newReleasesItems) {
     const userArtists = await this.getAllFollowedArtists()
@@ -173,7 +139,7 @@ export class SpotifyService {
       const releasesItems = releaseResponse.body.albums.items
       newReleaseList.body.albums.items.push(...releasesItems)
 
-      offset += 20
+      offset += 50
       if (releasesItems.length === 0) {
         fetchLoop = false
       }

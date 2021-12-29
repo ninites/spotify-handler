@@ -20,36 +20,12 @@ import { SpotifyService } from './spotify.service';
 export class SpotifyController {
   constructor(private readonly spotifyService: SpotifyService) { }
 
-  @Get('login')
-  // @Redirect()
-  login() {
-    const url = this.spotifyService.login();
-    return url
-    // return { url: url };
-  }
-
-  @Get('callback')
-  async callback(
-    @Query('scope') scope,
-    @Query('state') state: string,
-    @Query('code') code: string,
-    @Res({ passthrough: true }) res,
-  ) {
-    const token = await this.spotifyService.callback({
-      scope: scope,
-      state: state,
-      code: code,
-    });
-    res.cookie('spotify', token);
-    res.redirect(302, process.env.FRONT_REDIRECT_URI)
-  }
-
-  @Get('user/albums')
+  @Get('saved-albums')
   getMySavedAlbums() {
     return this.spotifyService.getMySavedAlbums();
   }
 
-  @Post('user/albums')
+  @Post('saved-albums')
   addToMySavedAlbums(
     @Body() createDto: CreateSpotifyDto
   ) {
@@ -57,7 +33,7 @@ export class SpotifyController {
     return this.spotifyService.addToMySavedAlbums(id)
   }
 
-  @Get('user/artists')
+  @Get('followed-artists')
   getFollowedArtists(
     @Query('offset') offset: number,
     @Query('limit') limit: number
@@ -68,7 +44,7 @@ export class SpotifyController {
     return this.spotifyService.getFollowedArtists(offset, limit);
   }
 
-  @Get('user/missing-album')
+  @Get('missing-albums')
   getMissingsAlbums(
     @Query('id') id: string
   ) {
@@ -78,12 +54,12 @@ export class SpotifyController {
     return this.spotifyService.getMissingsAlbums();
   }
 
-  @Get('user/new-releases')
+  @Get('new-releases')
   getNewReleases() {
     return this.spotifyService.getNewReleases()
   }
 
-  @Get('user/album/tracks/:id')
+  @Get('album/tracks/:id')
   getAlbumTracks(
     @Param('id') id: string
   ) {

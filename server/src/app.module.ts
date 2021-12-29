@@ -4,6 +4,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SpotifyModule } from './spotify/spotify.module';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -11,8 +13,10 @@ import { SpotifyModule } from './spotify/spotify.module';
       envFilePath: '.env',
       isGlobal: true,
     }),
-    // MongooseModule.forRoot(process.env.MONGO_DB_URL),
+    MongooseModule.forRoot(process.env.MONGO_DB_URL),
     SpotifyModule,
+    UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
