@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { DatesService } from '../dates/dates.service';
+import { DatesService } from './dates/dates.service';
 
 @Module({
     imports: [],

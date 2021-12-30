@@ -10,7 +10,7 @@ export class AuthGuard implements CanActivate {
   constructor(
     private readonly usersService: UsersService,
     private readonly authService: AuthService,
-    private readonly datesService : DatesService
+    private readonly datesService: DatesService
   ) { }
   canActivate(
     context: ExecutionContext,
@@ -44,8 +44,13 @@ export class AuthGuard implements CanActivate {
 
   private async refreshTokenCheck(userInfos: UserInfos) {
     const { access_token_created, access_token_expires_in, access_token_timeleft } = userInfos.spotify
-    console.log(access_token_created);
-    
+    const elapsedTime = this.datesService.fromNow(access_token_created, "seconds")
+    const timeLeft = access_token_expires_in - elapsedTime
+    const minTimeBeforeRefresh = parseInt(process.env.SPOTIFY_REFRESH_TOKEN_MIN)
+    if (timeLeft < minTimeBeforeRefresh) {
+      //refresh
+    }
+
 
   }
 }

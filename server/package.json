@@ -31,6 +31,7 @@
     "bcrypt": "^5.0.1",
     "cookie-parser": "^1.4.6",
     "jsonwebtoken": "^8.5.1",
+    "luxon": "^2.2.0",
     "mongoose": "^6.0.12",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",

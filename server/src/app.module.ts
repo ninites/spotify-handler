@@ -6,7 +6,7 @@ import { AppService } from './app.service';
 import { SpotifyModule } from './spotify/spotify.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-import { UtilsModule } from './utils/utils/utils.module';
+import { UtilsModule } from './utils/utils.module';
 
 @Module({
   imports: [
