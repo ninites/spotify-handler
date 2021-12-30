@@ -3,7 +3,7 @@ import ArtistsList from "../views/artists/ArtistsList";
 import Artist from "../views/artists/Artist";
 import LoginRedirect from "../views/login/logins/login-redirect.jsx";
 import Layout from "../layout/layout";
-import RequireAuthSpotify from "../views/login/auth/require-auth";
+import RequireAuth from "../views/login/auth/require-auth";
 import LoginSpotify from "../views/login/logins/login-spotify";
 import { useContext, useEffect, useState } from "react";
 import ArtistContext from "../contexts/artists-context";
@@ -68,30 +68,37 @@ const Main = () => {
             <Routes>
               <Route element={<Layout />}>
                 <Route path="login-redirect" element={<LoginRedirect />} />
-                <Route path="login/spotify" element={<LoginSpotify />} />
+                <Route
+                  path="login/spotify"
+                  element={
+                    <RequireAuth redirectTo="/login" type="app">
+                      <LoginSpotify />
+                    </RequireAuth>
+                  }
+                />
                 <Route path="login" element={<Login />} />
                 <Route
                   path="/artists"
                   element={
-                    <RequireAuthSpotify redirectTo="/login/spotify">
+                    <RequireAuth redirectTo="/login/spotify" type="spotify">
                       <ArtistsList />
-                    </RequireAuthSpotify>
+                    </RequireAuth>
                   }
                 />
                 <Route
                   path="/artists/:id"
                   element={
-                    <RequireAuthSpotify redirectTo="/login/spotify">
+                    <RequireAuth redirectTo="/login/spotify" type="spotify">
                       <Artist />
-                    </RequireAuthSpotify>
+                    </RequireAuth>
                   }
                 />
                 <Route
                   path="/new-releases"
                   element={
-                    <RequireAuthSpotify redirectTo="/login/spotify">
+                    <RequireAuth redirectTo="/login/spotify" type="spotify">
                       <Releases />
-                    </RequireAuthSpotify>
+                    </RequireAuth>
                   }
                 />
                 <Route path="/" element={<Navigate to="/artists" />} />

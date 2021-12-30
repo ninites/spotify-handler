@@ -82,13 +82,13 @@ const Layout = () => {
         label: "Mes artistes",
         icon: "pi pi-fw pi-star",
         command: () => redirect("artists"),
-        disabled: !loginStatus.app && !loginStatus.spotify,
+        disabled: !loginStatus.app || !loginStatus.spotify,
       },
       {
         label: "Les sorties",
         icon: "pi pi-fw pi-star",
         command: () => redirect("new-releases"),
-        disabled: !loginStatus.app && !loginStatus.spotify,
+        disabled: !loginStatus.app || !loginStatus.spotify,
       },
       {
         label: "Se Connecter",

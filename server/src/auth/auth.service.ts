@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt'
 import * as jwt from 'jsonwebtoken'
 import * as SpotifyWebApi from 'spotify-web-api-node';
 import { SpotifyService } from 'src/spotify/spotify.service';
+import { userInfo } from 'os';
 
 
 @Injectable()
@@ -86,35 +87,55 @@ export class AuthService {
 
 
     const responseAuth = await spotifyApi.authorizationCodeGrant(code);
-    const { access_token, refresh_token } = responseAuth.body
+
+    const { access_token, refresh_token, expires_in } = responseAuth.body
     this.spotifyService.setTokens({ access_token: access_token, refresh_token: refresh_token })
 
     const infosForUserAccountBinding = {
       spotify: {
         spotifyApi: spotifyApi,
-        accessToken: access_token,
-        refresh_token: refresh_token
+        access_token: access_token,
+        refresh_token: refresh_token,
+        access_token_timeleft: expires_in
       },
       app: {
-        token: appToken
+        app_token: appToken
       }
     }
 
-    this.addSpotifyInfos(infosForUserAccountBinding)
+    // BIND APP ACCOUNT AND SPOTIFY ACCOUNT
+    await this.addSpotifyInfos(infosForUserAccountBinding)
+
     return access_token;
   }
 
   private async addSpotifyInfos({ spotify, app }) {
-    const { access_token, refresh_token, spotifyApi } = spotify
-    const { appToken } = app
+    const { access_token, refresh_token, spotifyApi, access_token_timeleft } = spotify
+    const { app_token } = app
+
     spotifyApi.setAccessToken(access_token)
     spotifyApi.setRefreshToken(refresh_token)
+
     const spotifyAccount = await spotifyApi.getMe()
-    const appAccount = await this
+    const userId = this.getUserIdFromToken(app_token)
+
+    const userInfos = {
+      spotify: {
+        spotify_id: spotifyAccount.body.id,
+        email: spotifyAccount.body.email,
+        access_token: access_token,
+        access_token_timeleft: access_token_timeleft,
+        refresh_token: refresh_token
+      }
+    }
+
+    await this.usersService.update(userId, userInfos)
   }
 
-  private verifyAppToken(token : string) {
-    //todo
+  private getUserIdFromToken(token: string): string {
+    const verification = jwt.verify(token, process.env.JWT_PRIVATEKEY)
+    const userId = verification.id || ""
+    return userId
   }
 
 }

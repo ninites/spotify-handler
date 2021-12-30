@@ -32,7 +32,7 @@ export class UsersService {
 
     const newUser = {
       email: email,
-      password: hashPassword
+      password: hashPassword,
     }
 
     return await this.userModel.create(newUser)
@@ -58,8 +58,11 @@ export class UsersService {
     return this.userModel.findOne(filters)
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: any) {
+    const filter = { id: id }
+    const update = { ...updateUserDto }
+    await this.userModel.findOneAndUpdate(filter, update)
+    return await this.findOne({ id: id, email: "" });
   }
 
   remove(id: number) {
