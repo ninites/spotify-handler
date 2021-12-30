@@ -5,7 +5,7 @@ const LoginRedirect = () => {
   const [cookies, setCookie] = useCookies(["spotify"]);
 
   const closeWindow = () => {
-    if(cookies.spotify) {
+    if (cookies.spotify) {
       window.opener.location = "/";
       window.close();
     }

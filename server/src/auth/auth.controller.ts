@@ -6,7 +6,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
   @Post('login')
-  login(
+  async login(
     @Body('email') email: string,
     @Body('password') password: string,
     @Res({ passthrough: true }) res,
@@ -15,7 +15,7 @@ export class AuthController {
       email: email || '',
       password: password || ""
     }
-    const token = this.authService.login(infos)
+    const token = await this.authService.login(infos)
     res.cookie('app', token)
   }
 

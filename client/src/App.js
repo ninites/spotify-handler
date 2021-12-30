@@ -33,7 +33,7 @@ function App() {
     function (error) {
       setErrorDialog({
         display: true,
-        message: error.message,
+        message: "Erreur inattendue",
       });
       return Promise.reject(error);
     }

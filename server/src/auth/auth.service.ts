@@ -27,7 +27,9 @@ export class AuthService {
   ];
 
   async login({ email, password }) {
+    
     const user = await this.usersService.findOne({ id: "", email: email })
+
     if (!user) {
       throw new HttpException(
         '[AUTH/LOGIN] No user found with this email',
