@@ -7,6 +7,8 @@ export class CreateUserDto {
         access_token: string,
         refresh_token: string,
         access_token_timeleft: number,
+        access_token_expires_in: number,
+        access_token_created: Date,
         releases?: { [key: string]: any }[]
     }
 }
@@ -23,5 +25,7 @@ export class UserSpotify {
     access_token: string
     refresh_token: string
     access_token_timeleft: number
+    access_token_expires_in: number
+    access_token_created: Date
     releases?: { [key: string]: any }[]
 }

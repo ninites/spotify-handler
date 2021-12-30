@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { SpotifyModule } from './spotify/spotify.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { UtilsModule } from './utils/utils/utils.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AuthModule } from './auth/auth.module';
     SpotifyModule,
     UsersModule,
     AuthModule,
+    UtilsModule
   ],
   controllers: [AppController],
   providers: [AppService],

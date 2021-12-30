@@ -20,6 +20,10 @@ export class Spotify {
   access_token: string
   @Prop({ default: 0 })
   access_token_timeleft: number
+  @Prop({ default: 3600 })
+  access_token_expires_in: number
+  @Prop({ default: new Date() })
+  access_token_created: Date
   @Prop({ default: "" })
   refresh_token: string
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Release' }] })

@@ -40,7 +40,8 @@ export class AuthController {
       code: code,
       appToken: appToken
     });
-    res.cookie('spotify', token);
+    
+    res.cookie(token.name, token.content, { maxAge: token.expires });
     res.redirect(302, process.env.FRONT_REDIRECT_URI)
   }
 

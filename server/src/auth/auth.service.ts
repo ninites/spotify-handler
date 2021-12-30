@@ -92,7 +92,8 @@ export class AuthService {
         spotifyApi: spotifyApi,
         access_token: access_token,
         refresh_token: refresh_token,
-        access_token_timeleft: expires_in
+        access_token_timeleft: expires_in,
+        access_token_expires_in: expires_in
       },
       app: {
         app_token: appToken
@@ -102,11 +103,11 @@ export class AuthService {
     // BIND APP ACCOUNT AND SPOTIFY ACCOUNT
     await this.bindAppAccounts(infosForUserAccountBinding)
 
-    return access_token;
+    return { name: "spotify", content: access_token, expires: expires_in * 1000 };
   }
 
   private async bindAppAccounts({ spotify, app }) {
-    const { access_token, refresh_token, spotifyApi, access_token_timeleft } = spotify
+    const { access_token, refresh_token, spotifyApi, access_token_timeleft, access_token_expires_in } = spotify
     const { app_token } = app
 
     spotifyApi.setAccessToken(access_token)
@@ -121,6 +122,8 @@ export class AuthService {
         email: spotifyAccount.body.email,
         access_token: access_token,
         access_token_timeleft: access_token_timeleft,
+        access_token_expires_in: access_token_expires_in,
+        access_token_created : new Date(),
         refresh_token: refresh_token
       }
     }
