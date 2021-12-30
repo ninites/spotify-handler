@@ -66,7 +66,7 @@ export class SpotifyService {
       if (after) {
         config.after = after
       }
-
+      
       const artistsListRequest = await this.spotifyApi.getFollowedArtists(config)
       const artistsItems = artistsListRequest.body.artists.items
       artistsList.body.artists.items.push(...artistsItems)

@@ -1,6 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Res, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Res, Query, UseInterceptors, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
-
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
@@ -30,12 +29,16 @@ export class AuthController {
     @Query('scope') scope,
     @Query('state') state: string,
     @Query('code') code: string,
+    @Req() req,
     @Res({ passthrough: true }) res,
   ) {
+
+    const appToken = req?.cookies?.app || ""
     const token = await this.authService.callback({
       scope: scope,
       state: state,
       code: code,
+      appToken: appToken
     });
     res.cookie('spotify', token);
     res.redirect(302, process.env.FRONT_REDIRECT_URI)

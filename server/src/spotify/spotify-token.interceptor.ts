@@ -13,13 +13,19 @@ export class SpotifyTokenInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
 
-    let token = '';
+    let tokens = '';
     const authorization = context.switchToHttp().getRequest().headers[
       'authorization'
     ];
+    let spotifyToken = ""
     if (authorization) {
-      token = authorization.split('Bearer ')[1];
-      this.spotifyService.setTokens({ access_token: token, refresh_token: "" });
+      tokens = authorization.split('Bearer ')[1];
+
+      if (tokens) {
+        spotifyToken = JSON.parse(tokens).spotify
+      }
+
+      this.spotifyService.setTokens({ access_token: spotifyToken, refresh_token: "" });
     }
 
     return next.handle();

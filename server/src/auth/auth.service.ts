@@ -27,7 +27,7 @@ export class AuthService {
   ];
 
   async login({ email, password }) {
-    
+
     const user = await this.usersService.findOne({ id: "", email: email })
 
     if (!user) {
@@ -65,12 +65,12 @@ export class AuthService {
       clientSecret: this.clientSecret,
       redirectUri: this.redirectUri,
     });
-    
+
     const authorizeURL = spotifyApi.createAuthorizeURL(this.scopes);
     return authorizeURL;
   }
 
-  async callback({ scope, state, code }) {
+  async callback({ scope, state, code, appToken }) {
     if (!code) {
       throw new HttpException(
         '[SPOTIFY/CALLBACK] no code ',
@@ -84,10 +84,37 @@ export class AuthService {
       redirectUri: this.redirectUri,
     });
 
+
     const responseAuth = await spotifyApi.authorizationCodeGrant(code);
     const { access_token, refresh_token } = responseAuth.body
     this.spotifyService.setTokens({ access_token: access_token, refresh_token: refresh_token })
+
+    const infosForUserAccountBinding = {
+      spotify: {
+        spotifyApi: spotifyApi,
+        accessToken: access_token,
+        refresh_token: refresh_token
+      },
+      app: {
+        token: appToken
+      }
+    }
+
+    this.addSpotifyInfos(infosForUserAccountBinding)
     return access_token;
+  }
+
+  private async addSpotifyInfos({ spotify, app }) {
+    const { access_token, refresh_token, spotifyApi } = spotify
+    const { appToken } = app
+    spotifyApi.setAccessToken(access_token)
+    spotifyApi.setRefreshToken(refresh_token)
+    const spotifyAccount = await spotifyApi.getMe()
+    const appAccount = await this
+  }
+
+  private verifyAppToken(token : string) {
+    //todo
   }
 
 }

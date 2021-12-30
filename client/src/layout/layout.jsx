@@ -91,23 +91,23 @@ const Layout = () => {
         disabled: !loginStatus.app && !loginStatus.spotify,
       },
       {
-        label: "Log in",
+        label: "Se Connecter",
         icon: "pi pi-fw pi-sign-in",
         items: [
           {
-            label: "App",
+            label: "Se connecter à l'application",
             command: () => redirect("login"),
             disabled: loginStatus.app,
           },
           {
-            label: "Spotify",
+            label: "Connecter son compte Spotify",
             command: () => redirect("login/spotify"),
             disabled: loginStatus.spotify,
           },
         ],
       },
       {
-        label: "Log out",
+        label: "Déconnection",
         icon: "pi pi-fw pi-sign-out",
         command: () => {
           logOut();

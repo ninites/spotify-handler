@@ -10,7 +10,7 @@ import { ConfirmDialog } from "primereact/confirmdialog";
 import { useState } from "react";
 
 function App() {
-  const [cookies, setCookie] = useCookies(["spotify"]);
+  const [cookies, setCookie] = useCookies(["spotify", "app"]);
   const [errorDialog, setErrorDialog] = useState({
     display: false,
     message: "",
@@ -18,7 +18,17 @@ function App() {
 
   axios.interceptors.request.use(
     function (config) {
-      config.headers["authorization"] = "Bearer " + cookies.spotify;
+      const tokens = {};
+
+      if (cookies.app) {
+        tokens.app = cookies.app;
+      }
+
+      if (cookies.spotify) {
+        tokens.spotify = cookies.spotify;
+      }
+      const authValue = "Bearer " + JSON.stringify(tokens);
+      config.headers["authorization"] = authValue;
       return config;
     },
     function (error) {
