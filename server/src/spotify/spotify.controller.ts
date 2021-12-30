@@ -6,75 +6,88 @@ import {
   Post,
   Query,
   Redirect,
+  Req,
   Res,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateSpotifyDto } from './dto/create-spotify.dto';
 import { SpotifyErrorInterceptor } from './spotify-error.interceptor';
-import { SpotifyTokenInterceptor } from './spotify-token.interceptor';
 import { SpotifyService } from './spotify.service';
-
-@UseInterceptors(SpotifyTokenInterceptor)
+@UseGuards(AuthGuard)
 @UseInterceptors(SpotifyErrorInterceptor)
 @Controller('spotify')
 export class SpotifyController {
   constructor(private readonly spotifyService: SpotifyService) { }
 
   @Get('saved-albums')
-  getMySavedAlbums() {
-    return this.spotifyService.getMySavedAlbums();
+  getMySavedAlbums(
+    @Req() req
+  ) {
+    return this.spotifyService.getMySavedAlbums(req.userInfos);
   }
 
   @Post('saved-albums')
   addToMySavedAlbums(
-    @Body() createDto: CreateSpotifyDto
+    @Body() createDto: CreateSpotifyDto,
+    @Req() req
   ) {
     const { id } = createDto
-    return this.spotifyService.addToMySavedAlbums(id)
+    return this.spotifyService.addToMySavedAlbums(id, req.userInfos)
   }
 
   @Get('followed-artists')
-  getFollowedArtists(
+  async getFollowedArtists(
     @Query('offset') offset: number,
-    @Query('limit') limit: number
+    @Query('limit') limit: number,
+    @Req() req
   ) {
     if (!offset && !limit) {
-      return this.spotifyService.getAllFollowedArtists()
+      return await this.spotifyService.getAllFollowedArtists(req.userInfos)
     }
-    return this.spotifyService.getFollowedArtists(offset, limit);
+    return await this.spotifyService.getFollowedArtists(offset, limit, req.userInfos);
   }
 
   @Get('missing-albums')
   getMissingsAlbums(
-    @Query('id') id: string
+    @Query('id') id: string,
+    @Req() req
   ) {
     if (id) {
-      return this.spotifyService.getMissingAlbumsById(id)
+      return this.spotifyService.getMissingAlbumsById(id, req.userInfos)
     }
-    return this.spotifyService.getMissingsAlbums();
+    return this.spotifyService.getMissingsAlbums(req.userInfos);
   }
 
   @Get('new-releases')
-  getNewReleases() {
-    return this.spotifyService.getNewReleases()
+  getNewReleases(
+    @Req() req
+  ) {
+    return this.spotifyService.getNewReleases(req.userInfos)
   }
 
   @Get('album/tracks/:id')
   getAlbumTracks(
-    @Param('id') id: string
+    @Param('id') id: string,
+    @Req() req
   ) {
-    return this.spotifyService.getAlbumTracks(id)
+    return this.spotifyService.getAlbumTracks(id, req.userInfos)
   }
 
 
   @Get('artist')
-  getAlbum(@Query('id') id: string, @Query('name') name: string) {
+  getAlbum(
+    @Query('id') id: string,
+    @Query('name') name: string,
+    @Req() req
+  ) {
     if (id) {
-      return this.spotifyService.getArtistById(id);
+      return this.spotifyService.getArtistById(id, req.userInfos);
     }
 
     if (name) {
-      return this.spotifyService.getArtistByName(name);
+      return this.spotifyService.getArtistByName(name, req.userInfos);
     }
   }
 }

@@ -3,15 +3,12 @@ import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt'
 import * as jwt from 'jsonwebtoken'
 import * as SpotifyWebApi from 'spotify-web-api-node';
-import { SpotifyService } from 'src/spotify/spotify.service';
-import { userInfo } from 'os';
 
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
-    private readonly spotifyService: SpotifyService
   ) { }
 
   redirectUri = process.env.SPOTIFY_CALLBACK;
@@ -89,7 +86,6 @@ export class AuthService {
     const responseAuth = await spotifyApi.authorizationCodeGrant(code);
 
     const { access_token, refresh_token, expires_in } = responseAuth.body
-    this.spotifyService.setTokens({ access_token: access_token, refresh_token: refresh_token })
 
     const infosForUserAccountBinding = {
       spotify: {
@@ -104,12 +100,12 @@ export class AuthService {
     }
 
     // BIND APP ACCOUNT AND SPOTIFY ACCOUNT
-    await this.addSpotifyInfos(infosForUserAccountBinding)
+    await this.bindAppAccounts(infosForUserAccountBinding)
 
     return access_token;
   }
 
-  private async addSpotifyInfos({ spotify, app }) {
+  private async bindAppAccounts({ spotify, app }) {
     const { access_token, refresh_token, spotifyApi, access_token_timeleft } = spotify
     const { app_token } = app
 
@@ -132,7 +128,7 @@ export class AuthService {
     await this.usersService.update(userId, userInfos)
   }
 
-  private getUserIdFromToken(token: string): string {
+  getUserIdFromToken(token: string): string {
     const verification = jwt.verify(token, process.env.JWT_PRIVATEKEY)
     const userId = verification.id || ""
     return userId

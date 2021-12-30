@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as SpotifyWebApi from 'spotify-web-api-node';
+import { UserInfos } from 'src/users/dto/create-user.dto';
 
 @Injectable()
 export class SpotifyService {
@@ -8,47 +9,80 @@ export class SpotifyService {
   clientId = process.env.SPOTIFY_CLIENTID;
   clientSecret = process.env.SPOTIFY_CLIENTSECRET;
 
-  spotifyApi = new SpotifyWebApi({
-    clientId: this.clientId,
-    clientSecret: this.clientSecret,
-  });
+  setSpotifyApi(user, { setAccess, setRefresh }) {
+    const { refresh_token, access_token } = user.spotify
+    const spotifyApi = new SpotifyWebApi({
+      clientId: this.clientId,
+      clientSecret: this.clientSecret,
+    });
 
-  setTokens(tokens: { access_token: string, refresh_token: string }) {
-    const { access_token, refresh_token } = tokens
-    if (access_token) {
-      this.spotifyApi.setAccessToken(access_token);
+    if (setAccess) {
+      spotifyApi.setAccessToken(access_token)
     }
 
-    if (refresh_token) {
-      this.spotifyApi.setRefreshToken(refresh_token)
+    if (setRefresh) {
+      spotifyApi.setRefreshToken(refresh_token)
     }
+
+    return spotifyApi
   }
 
-  async getArtistById(id: string) {
-    const artist = await this.spotifyApi.getArtist(id);
+  /////// SPOTIFY API METHODS //////
+
+  async getArtistById(id: string, userInfos: UserInfos) {
+    const spotifyApi = this.setSpotifyApi(userInfos, { setAccess: true, setRefresh: false })
+    const artist = await spotifyApi.getArtist(id);
     return artist;
   }
 
+  async addToMySavedAlbums(id: string, userInfos: UserInfos) {
+    const spotifyApi = this.setSpotifyApi(userInfos, { setAccess: true, setRefresh: false })
+    const newAlbum = spotifyApi.addToMySavedAlbums([id])
+    return newAlbum
+  }
 
-  async getArtistByName(name: string) {
-    const artists = await this.spotifyApi.searchArtists(name);
+  async getArtistByName(name: string, userInfos: UserInfos) {
+    const spotifyApi = this.setSpotifyApi(userInfos, { setAccess: true, setRefresh: false })
+    const artists = await spotifyApi.searchArtists(name);
     return artists;
   }
 
-  async getMySavedAlbums() {
-    const albums = await this.spotifyApi.getMySavedAlbums();
+  async getMySavedAlbums(userInfos: UserInfos) {
+    const spotifyApi = this.setSpotifyApi(userInfos, { setAccess: true, setRefresh: false })
+    const albums = await spotifyApi.getMySavedAlbums();
     return albums;
   }
 
-  async getFollowedArtists(offset: number, limit: number) {
-    const artists = await this.spotifyApi.getFollowedArtists({
+  async getFollowedArtists(offset: number, limit: number, userInfos: UserInfos) {
+    const spotifyApi = this.setSpotifyApi(userInfos, { setAccess: true, setRefresh: false })
+    const artists = await spotifyApi.getFollowedArtists({
       limit: limit,
       offset: offset
     });
     return artists;
   }
 
-  async getAllFollowedArtists() {
+  async getAlbumTracks(id: string, userInfos: UserInfos) {
+    const spotifyApi = this.setSpotifyApi(userInfos, { setAccess: true, setRefresh: false })
+    const tracks = await spotifyApi.getAlbumTracks(id)
+    return tracks
+  }
+
+  async getArtistAlbums(id: string, userInfos: UserInfos) {
+    const spotifyApi = this.setSpotifyApi(userInfos, { setAccess: true, setRefresh: false })
+    const albums = await spotifyApi.getArtistAlbums(id, {
+      offset: 0,
+      include_groups: "album",
+    });
+    return albums;
+  }
+
+
+  ////// SPECIFIC APP METHODS /////
+
+  async getAllFollowedArtists(userInfos) {
+    const spotifyApi = this.setSpotifyApi(userInfos, { setAccess: true, setRefresh: false })
+
     const artistsList = {
       body: {
         artists: {
@@ -66,8 +100,8 @@ export class SpotifyService {
       if (after) {
         config.after = after
       }
-      
-      const artistsListRequest = await this.spotifyApi.getFollowedArtists(config)
+
+      const artistsListRequest = await spotifyApi.getFollowedArtists(config)
       const artistsItems = artistsListRequest.body.artists.items
       artistsList.body.artists.items.push(...artistsItems)
       const lastArtist = artistsItems[config.limit - 1]
@@ -81,22 +115,22 @@ export class SpotifyService {
     return artistsList
   }
 
-  async getNewReleases() {
-    const newReleases = await this.getAllNewReleases()
+  async getNewReleases(userInfos) {
+    const newReleases = await this.getAllNewReleases(userInfos)
     const newReleasesItems = newReleases.body.albums.items
-    const missingReleases = await this.getMissingReleases(newReleasesItems)
+    const missingReleases = await this.getMissingReleases(newReleasesItems, userInfos)
     return missingReleases
   }
 
-  private async getMissingReleases(newReleasesItems) {
-    const missingReleases = await this.getNewReleasesForUser(newReleasesItems)
+  private async getMissingReleases(newReleasesItems, userInfos) {
+    const missingReleases = await this.getNewReleasesForUser(newReleasesItems, userInfos)
     const releasesWithoutDups = this.removeDuplicate(missingReleases, "id")
-    const result = await this.filterByUserPossesion(releasesWithoutDups)
+    const result = await this.filterByUserPossesion(releasesWithoutDups, userInfos)
     return result
   }
 
-  private async filterByUserPossesion(data) {
-    const userAlbums = await this.getMySavedAlbums()
+  private async filterByUserPossesion(data, userInfos: UserInfos) {
+    const userAlbums = await this.getMySavedAlbums(userInfos)
     const savedAlbumsIds = userAlbums.body.items.map((item) => {
       return item.album.id
     })
@@ -106,8 +140,8 @@ export class SpotifyService {
     return result
   }
 
-  private async getNewReleasesForUser(newReleasesItems) {
-    const userArtists = await this.getAllFollowedArtists()
+  private async getNewReleasesForUser(newReleasesItems, userInfos) {
+    const userArtists = await this.getAllFollowedArtists(userInfos)
     const userArtistsNames: string[] = this.extractArtistsNames(userArtists.body.artists.items)
     return newReleasesItems.filter((item) => {
       const artistIsPresent = item.artists.map((artist) => {
@@ -117,7 +151,8 @@ export class SpotifyService {
     })
   }
 
-  private async getAllNewReleases() {
+  private async getAllNewReleases(userInfos) {
+    const spotifyApi = this.setSpotifyApi(userInfos, { setAccess: true, setRefresh: false })
     const newReleaseList = {
       body: {
         albums: {
@@ -135,7 +170,7 @@ export class SpotifyService {
         country: "FR"
       }
 
-      const releaseResponse = await this.spotifyApi.getNewReleases(config)
+      const releaseResponse = await spotifyApi.getNewReleases(config)
       const releasesItems = releaseResponse.body.albums.items
       newReleaseList.body.albums.items.push(...releasesItems)
 
@@ -153,23 +188,10 @@ export class SpotifyService {
     })
   }
 
-  async getAlbumTracks(id: string) {
-    const tracks = await this.spotifyApi.getAlbumTracks(id)
-    return tracks
-  }
-
-  async getArtistAlbums(id: string) {
-    const albums = await this.spotifyApi.getArtistAlbums(id, {
-      offset: 0,
-      include_groups: "album",
-    });
-    return albums;
-  }
-
-  async getMissingsAlbums() {
-    const resp = await this.getMySavedAlbums();
+  async getMissingsAlbums(userInfos) {
+    const resp = await this.getMySavedAlbums(userInfos);
     const userAlbums = resp.body.items;
-    const userArtistWithAlbums = await this.getUserArtistWithAlbums();
+    const userArtistWithAlbums = await this.getUserArtistWithAlbums(userInfos);
     const missingAlbums = userArtistWithAlbums.map((artistAlbums) => {
       const filteredAlbums = artistAlbums.albums.filter((album) => {
         return userAlbums.some((userAlbum) => userAlbum.album.id === album.id);
@@ -184,9 +206,9 @@ export class SpotifyService {
     return missingAlbums;
   }
 
-  async getMissingAlbumsById(id: string) {
-    const artistsAlbums = await this.getArtistAlbums(id)
-    const userAlbums = await this.getMySavedAlbums()
+  async getMissingAlbumsById(id: string, userInfos) {
+    const artistsAlbums = await this.getArtistAlbums(id, userInfos)
+    const userAlbums = await this.getMySavedAlbums(userInfos)
     const artistsLPs = this.removeDuplicate(artistsAlbums.body.items, "name")
     const missingAlbums = artistsLPs.filter((album) => {
       const userGotAlbum = userAlbums.body.items.find((userAlbum) => {
@@ -210,14 +232,14 @@ export class SpotifyService {
     return result
   }
 
-  private async getUserArtistWithAlbums(): Promise<
+  private async getUserArtistWithAlbums(userInfos): Promise<
     { id: string; albums: { [key: string]: any } }[] | unknown[]
   > {
-    const response = await this.getFollowedArtists(0, 50);
+    const response = await this.getFollowedArtists(0, 50, userInfos);
     const userArtists = response.body.artists.items;
     const artistsWithTheirAlbums = await Promise.all(
       userArtists.map(async (artist) => {
-        const artistAlbums = await this.getArtistAlbums(artist.id);
+        const artistAlbums = await this.getArtistAlbums(artist.id, userInfos);
         return {
           artist: artist,
           albums: artistAlbums.body.items,
@@ -227,8 +249,5 @@ export class SpotifyService {
     return artistsWithTheirAlbums;
   }
 
-  async addToMySavedAlbums(id: string) {
-    const newAlbum = this.spotifyApi.addToMySavedAlbums([id])
-    return newAlbum
-  }
+
 }
