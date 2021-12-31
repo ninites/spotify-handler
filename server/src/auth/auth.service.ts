@@ -3,12 +3,15 @@ import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt'
 import * as jwt from 'jsonwebtoken'
 import * as SpotifyWebApi from 'spotify-web-api-node';
+import { SpotifyService } from 'src/spotify/spotify.service';
+import { UserInfos } from 'src/users/dto/create-user.dto';
 
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
+    private readonly spotifyService: SpotifyService
   ) { }
 
   redirectUri = process.env.SPOTIFY_CALLBACK;
@@ -123,12 +126,19 @@ export class AuthService {
         access_token: access_token,
         access_token_timeleft: access_token_timeleft,
         access_token_expires_in: access_token_expires_in,
-        access_token_created : new Date(),
+        access_token_created: new Date(),
         refresh_token: refresh_token
       }
     }
 
     await this.usersService.update(userId, userInfos)
+  }
+
+  async refreshSpotifyToken(userInfos: UserInfos): Promise<string> {
+    const spotifyApi = this.spotifyService.setSpotifyApi(userInfos, { setAccess: true, setRefresh: true })
+    const newTokenResponse = await spotifyApi.refreshAccessToken()
+    const { access_token } = newTokenResponse.body
+    return access_token
   }
 
   getUserIdFromToken(token: string): string {

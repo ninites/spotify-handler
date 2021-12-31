@@ -1,4 +1,5 @@
 import { CanActivate, ExecutionContext, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { userInfo } from 'os';
 import { Observable } from 'rxjs';
 import { UserInfos } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
@@ -43,14 +44,19 @@ export class AuthGuard implements CanActivate {
   }
 
   private async refreshTokenCheck(userInfos: UserInfos) {
-    const { access_token_created, access_token_expires_in, access_token_timeleft } = userInfos.spotify
+    const { access_token_created, access_token_expires_in, access_token_timeleft, refresh_token } = userInfos.spotify
     const elapsedTime = this.datesService.fromNow(access_token_created, "seconds")
     const timeLeft = access_token_expires_in - elapsedTime
     const minTimeBeforeRefresh = parseInt(process.env.SPOTIFY_REFRESH_TOKEN_MIN)
-    if (timeLeft < minTimeBeforeRefresh) {
-      //refresh
-    }
+
+    // if (timeLeft < minTimeBeforeRefresh) {
+      await this.refreshToken(userInfos)
+    // }
 
 
+  }
+
+  private async refreshToken(userInfos) {
+    const newTokens = await this.authService.refreshSpotifyToken(userInfos)
   }
 }
