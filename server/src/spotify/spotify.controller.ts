@@ -11,11 +11,11 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthSpotifyGuard } from 'src/auth/auth-spotify.guard';
 import { CreateSpotifyDto } from './dto/create-spotify.dto';
 import { SpotifyErrorInterceptor } from './spotify-error.interceptor';
 import { SpotifyService } from './spotify.service';
-@UseGuards(AuthGuard)
+@UseGuards(AuthSpotifyGuard)
 @UseInterceptors(SpotifyErrorInterceptor)
 @Controller('spotify')
 export class SpotifyController {

@@ -81,6 +81,7 @@ export class SpotifyService {
   ////// SPECIFIC APP METHODS /////
 
   async getAllFollowedArtists(userInfos) {
+    
     const spotifyApi = this.setSpotifyApi(userInfos, { setAccess: true, setRefresh: false })
 
     const artistsList = {

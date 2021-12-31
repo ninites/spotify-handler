@@ -1,6 +1,6 @@
 import { Controller, Get, Post, UseGuards, Request } from '@nestjs/common';
 import { AppService } from './app.service';
-import { AuthGuard } from './auth/auth.guard';
+import { AuthSpotifyGuard } from './auth/auth-spotify.guard';
 
 @Controller()
 export class AppController {

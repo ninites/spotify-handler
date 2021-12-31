@@ -1,7 +1,7 @@
-import { AuthGuard } from './auth.guard';
+import { AuthSpotifyGuard } from './auth-spotify.guard';
 
 describe('AuthGuard', () => {
   it('should be defined', () => {
-    expect(new AuthGuard()).toBeDefined();
+    expect(new AuthSpotifyGuard()).toBeDefined();
   });
 });

@@ -41,10 +41,10 @@ function App() {
       return response;
     },
     function (error) {
-      setErrorDialog({
-        display: true,
-        message: "Erreur inattendue",
-      });
+      // setErrorDialog({
+      //   display: true,
+      //   message: "Erreur inattendue",
+      // });
       return Promise.reject(error);
     }
   );
