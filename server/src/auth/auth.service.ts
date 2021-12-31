@@ -1,23 +1,32 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import * as SpotifyWebApi from 'spotify-web-api-node';
 import { SpotifyService } from 'src/spotify/spotify.service';
 import { UserInfos } from 'src/users/dto/create-user.dto';
+import { DatesService } from 'src/utils/dates/dates.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
+    @Inject(forwardRef(() => SpotifyService))
     private readonly spotifyService: SpotifyService,
+    private readonly datesService: DatesService,
   ) {}
 
-  redirectUri = process.env.SPOTIFY_CALLBACK;
-  clientId = process.env.SPOTIFY_CLIENTID;
-  clientSecret = process.env.SPOTIFY_CLIENTSECRET;
+  private readonly redirectUri = process.env.SPOTIFY_CALLBACK;
+  private readonly clientId = process.env.SPOTIFY_CLIENTID;
+  private readonly clientSecret = process.env.SPOTIFY_CLIENTSECRET;
 
-  scopes = [
+  private readonly scopes = [
     'user-read-private',
     'user-read-email',
     'user-library-read',
@@ -45,7 +54,7 @@ export class AuthService {
       });
     });
     const emailTest = email === user.email;
-    
+
     if (!passwordTest || !emailTest) {
       throw new HttpException(
         '[AUTH/LOGIN] Wrong Password or Wrong Mail',
@@ -131,11 +140,33 @@ export class AuthService {
         refresh_token: refresh_token,
       },
     };
-    const newUser = await this.usersService.update(userId, userInfos);
+
+    await this.usersService.update(userId, userInfos);
     return;
   }
 
-  async refreshSpotifyToken(userInfos: UserInfos): Promise<string> {
+  async refreshTokenCheck(userInfos: UserInfos) {
+    const { access_token_created, access_token_expires_in } = userInfos.spotify;
+
+    const elapsedTime = this.datesService.fromNow(
+      access_token_created,
+      'seconds',
+    );
+
+    const timeLeft = access_token_expires_in - elapsedTime;
+    const minTimeBeforeRefresh = parseInt(
+      process.env.SPOTIFY_REFRESH_TOKEN_MIN,
+    );
+
+    if (timeLeft < minTimeBeforeRefresh) {
+      const newToken = await this.refreshToken(userInfos);
+      await this.usersService.update(userInfos._id, {
+        spotify: { access_token: newToken, access_token_created: new Date() },
+      });
+    }
+  }
+
+  private async refreshSpotifyToken(userInfos: UserInfos): Promise<string> {
     const spotifyApi = this.spotifyService.setSpotifyApi(userInfos, {
       setAccess: true,
       setRefresh: true,
@@ -143,6 +174,11 @@ export class AuthService {
     const newTokenResponse = await spotifyApi.refreshAccessToken();
     const { access_token } = newTokenResponse.body;
     return access_token;
+  }
+
+  private async refreshToken(userInfos) {
+    const newToken = await this.refreshSpotifyToken(userInfos);
+    return newToken;
   }
 
   getUserIdFromToken(token: string): string {

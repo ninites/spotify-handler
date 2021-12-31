@@ -8,13 +8,12 @@ import {
   User,
   UserSchema,
 } from 'src/schemas/user.schema';
+import { UtilsModule } from 'src/utils/utils.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: User.name, schema: UserSchema },
-      { name: Spotify.name, schema: SpotifySchema },
-    ]),
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    UtilsModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],

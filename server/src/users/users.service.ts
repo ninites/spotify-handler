@@ -21,15 +21,8 @@ export class UsersService {
         HttpStatus.CONFLICT,
       );
     }
-    const saltRounds = parseInt(process.env.BCRYPT_SALT);
-    const hashPassword = await new Promise((resolve, reject) => {
-      bcrypt.hash(password, saltRounds, function (err, hash) {
-        if (err) {
-          reject(err);
-        }
-        resolve(hash);
-      });
-    });
+
+    const hashPassword = await this.hashPassword(password);
 
     const newUser = {
       email: email,
@@ -61,28 +54,56 @@ export class UsersService {
 
   async update(id: string, updateUserDto: any) {
     const filter = { _id: id };
-    const updateData = {};
+    let updateData = {};
 
     const spotify = updateUserDto.spotify;
     delete updateUserDto.spotify;
 
-    for (const key in updateUserDto) {
-      if (updateUserDto[key]) {
-        updateData[key] = updateUserDto[key];
-      }
-    }
+    updateData = this.updateLoop(updateUserDto, {
+      isNested: false,
+      nestName: '',
+    });
 
     if (spotify) {
-      for (const key in spotify) {
-        if (spotify[key]) {
-          updateData[`spotify.${key}`] = spotify[key];
-        }
-      }
+      const spotifyData = this.updateLoop(spotify, {
+        isNested: true,
+        nestName: 'spotify',
+      });
+      updateData = { ...updateData, ...spotifyData };
     }
 
     return await this.userModel
       .findOneAndUpdate(filter, updateData, { new: true })
       .lean();
+  }
+
+  private updateLoop(object, { nestName, isNested }) {
+    const result = {};
+    for (const key in object) {
+      if (object[key]) {
+        if (!isNested) {
+          result[key] = object[key];
+        }
+        if (isNested) {
+          result[`${nestName}.${key}`] = object[key];
+        }
+      }
+    }
+    return result;
+  }
+
+  async hashPassword(password: string) {
+    const saltRounds = parseInt(process.env.BCRYPT_SALT);
+    const hashPassword = await new Promise((resolve, reject) => {
+      bcrypt.hash(password, saltRounds, function (err, hash) {
+        if (err) {
+          reject(err);
+        }
+        resolve(hash);
+      });
+    });
+
+    return hashPassword;
   }
 
   remove(id: number) {
