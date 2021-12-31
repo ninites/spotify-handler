@@ -61,23 +61,27 @@ export class UsersService {
 
   async update(id: string, updateUserDto: any) {
     const filter = { _id: id };
+    const updateData = {};
 
-    const update: any = {
-      $set: {},
-    };
-
-    const setField = {};
+    const spotify = updateUserDto.spotify;
+    delete updateUserDto.spotify;
 
     for (const key in updateUserDto) {
-      const value = updateUserDto[key];
-      if (value) {
-        setField[key] = value;
+      if (updateUserDto[key]) {
+        updateData[key] = updateUserDto[key];
       }
     }
-    update.$set = setField;
+
+    if (spotify) {
+      for (const key in spotify) {
+        if (spotify[key]) {
+          updateData[`spotify.${key}`] = spotify[key];
+        }
+      }
+    }
 
     return await this.userModel
-      .findOneAndUpdate(filter, update, { new: true })
+      .findOneAndUpdate(filter, updateData, { new: true })
       .lean();
   }
 

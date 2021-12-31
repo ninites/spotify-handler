@@ -67,12 +67,17 @@ export class AuthSpotifyGuard implements CanActivate {
       process.env.SPOTIFY_REFRESH_TOKEN_MIN,
     );
 
-    if (timeLeft < minTimeBeforeRefresh) {
-    await this.refreshToken(userInfos);
-    }
+    // if (timeLeft < minTimeBeforeRefresh) {
+    const newToken = await this.refreshToken(userInfos);
+    const updatedUser = await this.usersService.update(userInfos._id, {
+      spotify: { access_token: newToken, access_token_created: new Date() },
+    });
+    
+    // }
   }
 
   private async refreshToken(userInfos) {
-    const newTokens = await this.authService.refreshSpotifyToken(userInfos);
+    const newToken = await this.authService.refreshSpotifyToken(userInfos);
+    return newToken;
   }
 }

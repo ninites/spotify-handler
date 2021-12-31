@@ -132,8 +132,6 @@ export class AuthService {
       },
     };
     const newUser = await this.usersService.update(userId, userInfos);
-    console.log(newUser);
-
     return;
   }
 
