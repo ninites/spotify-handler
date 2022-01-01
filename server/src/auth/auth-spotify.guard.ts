@@ -42,11 +42,14 @@ export class AuthSpotifyGuard implements CanActivate {
   }
 
   private async handleUser(token, req) {
-    // SURCHARGE REQ WITH USER INFOS //
-    req.userInfos = await this.getUserInfos(token);
+    const usersInfos = await this.getUserInfos(token);
 
     // CHECK IF NEED TO REFRESH TOKEN //
-    await this.authService.refreshTokenCheck(req.userInfos);
+    await this.authService.refreshTokenCheck(usersInfos);
+
+    // SURCHARGE REQ WITH USER INFOS //
+    req.userInfos = usersInfos;
+
     return true;
   }
 
