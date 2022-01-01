@@ -178,6 +178,7 @@ export class SpotifyService {
         const userPresentReleasesIds = user.spotify.releases.map((release) => {
           return release.album_id;
         });
+
         release.missing_releases = release.missing_releases.filter((album) => {
           const result = !userPresentReleasesIds.includes(album.album_id);
           return result;
@@ -199,6 +200,8 @@ export class SpotifyService {
         },
       });
     });
+
+    return true;
   }
 
   async getNewReleasesByUser(userInfos: UserInfos) {

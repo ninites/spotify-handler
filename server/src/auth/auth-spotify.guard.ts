@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { UsersService } from 'src/users/users.service';
 import { AuthService } from './auth.service';
@@ -14,12 +15,18 @@ export class AuthSpotifyGuard implements CanActivate {
   constructor(
     private readonly usersService: UsersService,
     private readonly authService: AuthService,
+    private readonly reflector: Reflector,
   ) {}
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
     const appToken = request?.cookies?.app;
+    const noAuth = this.reflector.get<boolean>('no-auth', context.getHandler());
+
+    if (noAuth) {
+      return true;
+    }
 
     if (!appToken) {
       throw new HttpException(

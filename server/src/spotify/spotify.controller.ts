@@ -10,6 +10,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthSpotifyGuard } from 'src/auth/auth-spotify.guard';
+import { NoAuth } from 'src/meta-data/no-auth';
 import { CreateSpotifyDto } from './dto/create-spotify.dto';
 import { SpotifyErrorInterceptor } from './spotify-error.interceptor';
 import { SpotifyService } from './spotify.service';
@@ -54,6 +55,7 @@ export class SpotifyController {
     return this.spotifyService.getMissingsAlbums(req.userInfos);
   }
 
+  @NoAuth()
   @Get('cron/new-releases')
   getNewReleases() {
     return this.spotifyService.getNewReleasesCron();
