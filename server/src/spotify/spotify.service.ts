@@ -4,6 +4,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { UserInfos, UserRelease } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { MailService } from 'src/utils/mail/mail.service';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class SpotifyService {
@@ -153,6 +154,7 @@ export class SpotifyService {
     return artistsList;
   }
 
+  @Cron(CronExpression.EVERY_WEEK)
   async getNewReleasesCron() {
     console.log('[CRON/GET NEW RELEASES] START');
     const users = await this.userService.findAll();
