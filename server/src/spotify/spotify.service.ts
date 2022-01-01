@@ -158,9 +158,24 @@ export class SpotifyService {
     // GET MISSINGS NEW RELEASES
     const usersMissingAlbums = await Promise.all(
       users.map(async (user: UserInfos) => {
-        return await this.getNewReleases(user);
+        const missingReleases = await this.getNewReleases(user);
+
+        return {
+          user_id: user._id,
+          missing_releases: missingReleases,
+        };
       }),
     );
+
+    // ADD THEM TO APP DB
+    usersMissingAlbums.forEach(async (user) => {
+      const userWithNewReleases = await this.userService.update(user.user_id, {
+        spotify: {
+          releases: user.missing_releases,
+        },
+      });
+      console.log(userWithNewReleases);
+    });
 
     return [];
   }
@@ -188,11 +203,13 @@ export class SpotifyService {
       releasesWithoutDups,
       userInfos,
     );
-    // CHANGE ID TO ALBUM_ID
-    const result = releasesForUser.map((release: UserRelease) => {
+
+    // REPLACE ID BY ALBUM_ID
+    const result = releasesForUser.map((release) => {
       delete Object.assign(release, { ['album_id']: release['id'] })['id'];
       return release;
     });
+
     return result;
   }
 

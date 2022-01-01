@@ -3,9 +3,8 @@ import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 
 export type UserDocument = User & Document;
-export type SpotifyDocument = Spotify & Document;
 @Schema()
-export class Release {
+class Release extends Document {
   @Prop({ default: '' })
   album_type: string;
   @Prop()
@@ -34,9 +33,8 @@ export class Release {
   uri: string;
 }
 
-export const ReleaseSchema = SchemaFactory.createForClass(Release);
 @Schema()
-export class Spotify {
+class Spotify {
   @Prop({ default: '' })
   spotify_id: string;
   @Prop({ default: '' })
@@ -49,11 +47,9 @@ export class Spotify {
   access_token_created: Date;
   @Prop({ default: '' })
   refresh_token: string;
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Release' }] })
+  @Prop({ default: [] })
   releases: Release[];
 }
-
-export const SpotifySchema = SchemaFactory.createForClass(Spotify);
 
 @Schema()
 export class User extends Document {
@@ -61,7 +57,7 @@ export class User extends Document {
   email: string;
   @Prop({ required: true })
   password: string;
-  @Prop({ type: Spotify, default: new Spotify() })
+  @Prop({ default: new Spotify() })
   spotify: Spotify;
 }
 

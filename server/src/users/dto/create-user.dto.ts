@@ -20,27 +20,24 @@ export class UserInfos {
 }
 
 export class UserSpotify {
+  _id?: string;
   spotify_id: string;
   email: string;
   access_token: string;
   refresh_token: string;
   access_token_expires_in: number;
   access_token_created: Date;
-  releases: UserRelease[];
+  releases?: UserRelease[];
 }
 
 export class UserRelease {
-  album_type: string;
-  artists: [];
-  available_markets: [];
-  external_urls: [];
-  href: string;
   album_id: string;
-  images: [];
-  name: string;
-  release_date: string;
-  release_date_precision: string;
-  total_tracks: number;
-  type: string;
-  uri: string;
+  // album_type: string;
+  // href: string;
+  // name: string;
+  // release_date: string;
+  // release_date_precision: string;
+  // total_tracks: number;
+  // type: string;
+  // uri: string;
 }

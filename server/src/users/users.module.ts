@@ -2,12 +2,7 @@ import { Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import {
-  Spotify,
-  SpotifySchema,
-  User,
-  UserSchema,
-} from 'src/schemas/user.schema';
+import { User, UserSchema } from 'src/schemas/user.schema';
 import { UtilsModule } from 'src/utils/utils.module';
 
 @Module({

@@ -49,11 +49,12 @@ export class UsersService {
     const filters: any = {};
     if (id) filters._id = id;
     if (email) filters.email = email;
+
     return this.userModel.findOne(filters);
   }
 
   async update(id: string, updateUserDto: any) {
-    const filter = { _id: id };
+    const filter: any = { _id: id };
     let updateData = {};
 
     const spotify = updateUserDto.spotify;
@@ -65,6 +66,9 @@ export class UsersService {
     });
 
     if (spotify) {
+      if (spotify.nested_id) {
+        filter['spotify._id'] = spotify.nested_id;
+      }
       const spotifyData = this.updateLoop(spotify, {
         isNested: true,
         nestName: 'spotify',
@@ -79,13 +83,20 @@ export class UsersService {
 
   private updateLoop(object, { nestName, isNested }) {
     const result = {};
+
     for (const key in object) {
       if (object[key]) {
         if (!isNested) {
           result[key] = object[key];
         }
         if (isNested) {
-          result[`${nestName}.${key}`] = object[key];
+          if (key === 'releases') {
+            result['$push'] = {
+              'spotify.releases': { $each: object[key] },
+            };
+          } else {
+            result[`${nestName}.${key}`] = object[key];
+          }
         }
       }
     }

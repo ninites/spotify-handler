@@ -135,13 +135,14 @@ export class AuthService {
         spotify_id: spotifyAccount.body.id,
         email: spotifyAccount.body.email,
         access_token: access_token,
+        refresh_token: refresh_token,
         access_token_expires_in: access_token_expires_in,
         access_token_created: new Date(),
-        refresh_token: refresh_token,
       },
     };
 
-    await this.usersService.update(userId, userInfos);
+    const binded = await this.usersService.update(userId, userInfos);
+
     return;
   }
 

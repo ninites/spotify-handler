@@ -36,6 +36,7 @@ export class AuthSpotifyGuard implements CanActivate {
   private async handleUser(token, req) {
     // SURCHARGE REQ WITH USER INFOS //
     req.userInfos = await this.getUserInfos(token);
+
     // CHECK IF NEED TO REFRESH TOKEN //
     await this.authService.refreshTokenCheck(req.userInfos);
     return true;
@@ -43,10 +44,12 @@ export class AuthSpotifyGuard implements CanActivate {
 
   private async getUserInfos(token) {
     const userId = await this.authService.getUserIdFromToken(token);
+
     const userInfos = await this.usersService.findOne({
       id: userId,
       email: '',
     });
+
     return userInfos;
   }
 }
