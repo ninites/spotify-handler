@@ -202,7 +202,7 @@ export class SpotifyService {
         );
       }),
     );
-
+    console.log('[CRON/GET NEW RELEASES] DONE ');
     return true;
   }
 

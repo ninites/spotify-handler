@@ -469,7 +469,7 @@ export const updatableTemplatesPart = {
                           <p
                           style="font-size: 14px; line-height: 140%"
                         >
-                        {{ALBUM_RELEASEDATE}}
+                        Date de sortie : {{ALBUM_RELEASEDATE}}
                         </p>
                         </div>
                       </td>
@@ -500,7 +500,7 @@ export const updatableTemplatesPart = {
                         <div class="v-text-align" align="left">
                           <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-spacing: 0; border-collapse: collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;font-family:'Lato',sans-serif;"><tr><td class="v-text-align" style="font-family:'Lato',sans-serif;" align="left"><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="" style="height:47px; v-text-anchor:middle; width:149px;" arcsize="8.5%" stroke="f" fillcolor="#05559a"><w:anchorlock/><center style="color:#FFFFFF;font-family:'Lato',sans-serif;"><![endif]-->
                           <a
-                            href=""
+                            href="{{ADD_ALBUM_LINK}}"
                             target="_blank"
                             style="
                               box-sizing: border-box;
@@ -510,6 +510,7 @@ export const updatableTemplatesPart = {
                               -webkit-text-size-adjust: none;
                               text-align: center;
                               color: #ffffff;
+                              cursor:pointer;
                               background-color: #05559a;
                               border-radius: 4px;
                               -webkit-border-radius: 4px;
@@ -534,7 +535,7 @@ export const updatableTemplatesPart = {
                                     font-size: 18px;
                                     line-height: 21.6px;
                                   "
-                                  >See The book</span
+                                  >Ajouter l' album</span
                                 ></strong
                               ></span
                             >

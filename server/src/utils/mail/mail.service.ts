@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
-import { UserInfos, UserRelease } from 'src/users/dto/create-user.dto';
+import { UserInfos } from 'src/users/dto/create-user.dto';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { updatableTemplatesPart } from './template-updatable-values/new-releases-up';
@@ -26,23 +26,22 @@ export class MailService {
     },
   };
 
-  async sendNewReleases(userInfos: UserInfos, releases: UserRelease[]) {
+  async sendNewReleases(userInfos: UserInfos, releases) {
     const basicTemplate = await this.fetchMailTemplate(
       this.templates.newReleases.path,
     );
 
     const updatedTemplate = releases.map((release) => {
       const replacers = {
-        // '{{ALBUM_COVER}}': release.images[0],
+        '{{ALBUM_COVER}}': release.images[0].url,
         '{{ALBUM_TITLE}}}': release.name,
-        // '{{ALBUM_ARTIST}}': release.artists[0].name,
+        '{{ALBUM_ARTIST}}': release.artists[0].name,
         '{{ALBUM_RELEASEDATE}}': release.release_date,
-        '{{ADD_ALBUM_LINK}}': '',
+        '{{ADD_ALBUM_LINK}}': 'https://pornhub.com',
       };
 
       return this.updateTemplate(updatableTemplatesPart.newRelease, replacers);
     });
-    // console.log(updatedTemplate);
 
     const replacer = {
       '{{WRAPPER}}': updatedTemplate.join(''),
@@ -59,6 +58,7 @@ export class MailService {
 
     try {
       await this.transporter.sendMail(config);
+      console.log('[CRON/GET NEW RELEASES] send mail to : ' + userInfos.email);
       return true;
     } catch (err) {
       throw new HttpException(
