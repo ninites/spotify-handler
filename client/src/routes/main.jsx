@@ -52,11 +52,6 @@ const Main = () => {
     setLoginStatus({ app: gotAppCookie, spotify: gotSpotifyCookie });
   }, [cookies]);
 
-  /// BEFORE CRON NEEDED TO BE REMOVED
-  useEffect(() => {
-    axios.get('/spotify/cron/new-releases');
-  }, []);
-
   useContext(ArtistContext);
   useContext(ReleasesContext);
   useContext(LoginStatusContext);

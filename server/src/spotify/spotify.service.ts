@@ -48,7 +48,11 @@ export class SpotifyService {
       setAccess: true,
       setRefresh: false,
     });
-    const newAlbum = spotifyApi.addToMySavedAlbums([id]);
+    const newAlbum = await spotifyApi.addToMySavedAlbums([id]);
+
+    // REMOVE FROM NEW RELEASES APP DB
+    await this.userService.removeRelease(userInfos._id, id);
+
     return newAlbum;
   }
 

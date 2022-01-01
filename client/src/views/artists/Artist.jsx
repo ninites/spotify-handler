@@ -1,15 +1,15 @@
-import { useEffect } from "react";
-import { useParams } from "react-router-dom";
-import useRequest from "../../customhooks/useRequest";
-import { Card } from "primereact/card";
-import { Button } from "primereact/button";
-import axios from "axios";
-import { useState, useRef, useContext } from "react";
-import ArtistContext from "../../contexts/artists-context";
-import { OverlayPanel } from "primereact/overlaypanel";
+import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import useRequest from '../../customhooks/useRequest';
+import { Card } from 'primereact/card';
+import { Button } from 'primereact/button';
+import axios from 'axios';
+import { useState, useRef, useContext } from 'react';
+import ArtistContext from '../../contexts/artists-context';
+import { OverlayPanel } from 'primereact/overlaypanel';
 
-import "./artist.css";
-import ReleasesContext from "../../contexts/releases-context";
+import './artist.css';
+import ReleasesContext from '../../contexts/releases-context';
 
 const Artist = () => {
   let params = useParams();
@@ -19,34 +19,34 @@ const Artist = () => {
 
   const [artists] = useContext(ArtistContext);
   const [artist, setArtist] = useState({
-    name: "",
-    images: [{ url: "" }],
+    name: '',
+    images: [{ url: '' }],
   });
 
   const [refetch, setRefetch] = useState(false);
   const albums = useRequest(
-    "get",
-    "/spotify/missing-albums?id=" + params.id,
+    'get',
+    '/spotify/missing-albums?id=' + params.id,
     refetch
   );
   const [albumsToDisplay, setAlbumsToDisplay] = useState([]);
-  
+
   const [tracks, setTracks] = useState([]);
   const trackList = useRef(null);
 
   const computeTitle = (title) => {
     if (!title) {
-      return "";
+      return '';
     }
-    const firstLetter = title.split("")[0];
-    const rest = title.split("");
+    const firstLetter = title.split('')[0];
+    const rest = title.split('');
     rest.shift();
     rest.unshift(firstLetter.toUpperCase());
-    return rest.join("");
+    return rest.join('');
   };
 
   const showTrackList = async (e, album) => {
-    const url = "/spotify/album/tracks/" + album.id;
+    const url = '/spotify/album/tracks/' + album.id;
     const tracksResponse = await axios.get(url);
     const tracks = tracksResponse.data.body.items;
     if (tracks) {
@@ -55,16 +55,12 @@ const Artist = () => {
     }
   };
 
-  const removeFromNewRelease = async () => {
-   
-  }
-
   const addAlbum = async (id) => {
     const data = {
       id: id,
     };
     try {
-      await axios.post("/spotify/saved-albums", data);
+      await axios.post('/spotify/saved-albums', data);
       setRefetch(!refetch);
       setRefetchReleases(!refetchReleases);
     } catch (err) {
@@ -115,7 +111,7 @@ const Artist = () => {
                       style={{ backgroundImage: `url(${album.images[1].url})` }}
                     ></div>
                   }
-                  style={{ width: "15rem", height: "350px" }}
+                  style={{ width: '15rem', height: '350px' }}
                 >
                   <div className="album-card-content">
                     <div>
@@ -146,7 +142,7 @@ const Artist = () => {
                     </div>
                     <Button
                       label="Ajouter l' album"
-                      style={{ marginTop: "1rem" }}
+                      style={{ marginTop: '1rem' }}
                       onClick={() => {
                         addAlbum(album.id);
                       }}

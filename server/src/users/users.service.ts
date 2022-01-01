@@ -101,7 +101,20 @@ export class UsersService {
         'spotify.releases': data,
       },
     };
-    return this.userModel.findOneAndUpdate(id, replacement);
+    return this.userModel.findOneAndUpdate(id, replacement, { new: true });
+  }
+
+  async removeRelease(userId: string, releaseId: string) {
+    const id = { _id: userId };
+    const deleteItem = {
+      $pull: {
+        'spotify.releases': { album_id: releaseId },
+      },
+    };
+
+    return this.userModel.findOneAndUpdate(id, deleteItem, {
+      new: true,
+    });
   }
 
   async hashPassword(password: string) {
