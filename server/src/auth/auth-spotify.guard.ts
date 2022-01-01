@@ -20,13 +20,14 @@ export class AuthSpotifyGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const appToken = request?.cookies?.app;
     const noAuth = this.reflector.get<boolean>('no-auth', context.getHandler());
 
     if (noAuth) {
       return true;
     }
+
+    const request = context.switchToHttp().getRequest();
+    const appToken = request?.cookies?.app;
 
     if (!appToken) {
       throw new HttpException(
@@ -51,7 +52,6 @@ export class AuthSpotifyGuard implements CanActivate {
 
   private async getUserInfos(token) {
     const userId = await this.authService.getUserIdFromToken(token);
-
     const userInfos = await this.usersService.findOne({
       id: userId,
       email: '',

@@ -55,6 +55,10 @@ const Artist = () => {
     }
   };
 
+  const removeFromNewRelease = async () => {
+   
+  }
+
   const addAlbum = async (id) => {
     const data = {
       id: id,

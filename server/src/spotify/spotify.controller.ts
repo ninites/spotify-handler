@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -64,6 +65,11 @@ export class SpotifyController {
   @Get('new-releases')
   getNewReleasesByUser(@Req() req) {
     return this.spotifyService.getNewReleasesByUser(req.userInfos);
+  }
+
+  @Delete('new-releases/:id')
+  deleteNewReleasesByUser(@Param('id') id: string, @Req() req) {
+    return this.spotifyService.deleteNewReleasesByUser(id, req.userInfos);
   }
 
   @Get('album/tracks/:id')

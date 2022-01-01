@@ -66,9 +66,6 @@ export class UsersService {
     });
 
     if (spotify) {
-      if (spotify.nested_id) {
-        filter['spotify._id'] = spotify.nested_id;
-      }
       const spotifyData = this.updateLoop(spotify, {
         isNested: true,
         nestName: 'spotify',
@@ -90,17 +87,21 @@ export class UsersService {
           result[key] = object[key];
         }
         if (isNested) {
-          if (key === 'releases') {
-            result['$push'] = {
-              'spotify.releases': { $each: object[key] },
-            };
-          } else {
-            result[`${nestName}.${key}`] = object[key];
-          }
+          result[`${nestName}.${key}`] = object[key];
         }
       }
     }
     return result;
+  }
+
+  async changeReleases(userId: string, data) {
+    const id = { _id: userId };
+    const replacement = {
+      $set: {
+        'spotify.releases': data,
+      },
+    };
+    return this.userModel.findOneAndUpdate(id, replacement);
   }
 
   async hashPassword(password: string) {
