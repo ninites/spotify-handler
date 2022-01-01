@@ -1,21 +1,22 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import ArtistsList from "../views/artists/ArtistsList";
-import Artist from "../views/artists/Artist";
-import LoginRedirect from "../views/login/logins/login-redirect.jsx";
-import Layout from "../layout/layout";
-import RequireAuth from "../views/login/auth/require-auth";
-import LoginSpotify from "../views/login/logins/login-spotify";
-import { useContext, useEffect, useState } from "react";
-import ArtistContext from "../contexts/artists-context";
-import useRequest from "../customhooks/useRequest";
-import Releases from "../views/releases/releases";
-import ReleasesContext from "../contexts/releases-context";
-import LoginStatusContext from "../contexts/login-status-context";
-import { useCookies } from "react-cookie";
-import Login from "../views/login/logins/login";
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import ArtistsList from '../views/artists/ArtistsList';
+import Artist from '../views/artists/Artist';
+import LoginRedirect from '../views/login/logins/login-redirect.jsx';
+import Layout from '../layout/layout';
+import RequireAuth from '../views/login/auth/require-auth';
+import LoginSpotify from '../views/login/logins/login-spotify';
+import { useContext, useEffect, useState } from 'react';
+import ArtistContext from '../contexts/artists-context';
+import useRequest from '../customhooks/useRequest';
+import Releases from '../views/releases/releases';
+import ReleasesContext from '../contexts/releases-context';
+import LoginStatusContext from '../contexts/login-status-context';
+import { useCookies } from 'react-cookie';
+import Login from '../views/login/logins/login';
+import axios from 'axios';
 
 const Main = () => {
-  const [cookies, setCookie] = useCookies(["spotify", "app"]);
+  const [cookies, setCookie] = useCookies(['spotify', 'app']);
 
   const [loginStatus, setLoginStatus] = useState({
     app: false,
@@ -25,13 +26,13 @@ const Main = () => {
   const [releases, setReleases] = useState([]);
   const [refetchReleases, setRefetchReleases] = useState(false);
   const newReleasesResponse = useRequest(
-    "get",
-    "/spotify/new-releases",
+    'get',
+    '/spotify/new-releases',
     refetchReleases
   );
 
   const [artists, setArtists] = useState([]);
-  const artistsRequest = useRequest("get", "/spotify/followed-artists");
+  const artistsRequest = useRequest('get', '/spotify/followed-artists');
 
   useEffect(() => {
     const gotAnswer = artistsRequest.data.length !== 0;
@@ -50,6 +51,11 @@ const Main = () => {
     const gotAppCookie = cookies.app ? true : false;
     setLoginStatus({ app: gotAppCookie, spotify: gotSpotifyCookie });
   }, [cookies]);
+
+  /// BEFORE CRON NEEDED TO BE REMOVED
+  useEffect(() => {
+    axios.get('/spotify/cron/new-releases');
+  }, []);
 
   useContext(ArtistContext);
   useContext(ReleasesContext);

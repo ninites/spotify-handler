@@ -167,17 +167,47 @@ export class SpotifyService {
       }),
     );
 
+    // REMOVE ALREADY INSERTED ONES
+    const filteredNewReleases = await Promise.all(
+      usersMissingAlbums.map(async (release) => {
+        const user = await this.userService.findOne({
+          id: release.user_id,
+          email: '',
+        });
+
+        const userPresentReleasesIds = user.spotify.releases.map((release) => {
+          return release.album_id;
+        });
+        release.missing_releases = release.missing_releases.filter((album) => {
+          const result = !userPresentReleasesIds.includes(album.album_id);
+          return result;
+        });
+
+        return release;
+      }),
+    );
+
     // ADD THEM TO APP DB
-    usersMissingAlbums.forEach(async (user) => {
-      const userWithNewReleases = await this.userService.update(user.user_id, {
+    filteredNewReleases.forEach(async (user) => {
+      if (user.missing_releases.length === 0) {
+        return;
+      }
+
+      await this.userService.update(user.user_id, {
         spotify: {
           releases: user.missing_releases,
         },
       });
-      console.log(userWithNewReleases);
+    });
+  }
+
+  async getNewReleasesByUser(userInfos: UserInfos) {
+    const user = await this.userService.findOne({
+      id: userInfos._id,
+      email: '',
     });
 
-    return [];
+    return user.spotify.releases;
   }
 
   private async getNewReleases(userInfos: UserInfos): Promise<UserRelease[]> {

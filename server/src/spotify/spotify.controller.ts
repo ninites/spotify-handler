@@ -54,9 +54,14 @@ export class SpotifyController {
     return this.spotifyService.getMissingsAlbums(req.userInfos);
   }
 
-  @Get('new-releases')
+  @Get('cron/new-releases')
   getNewReleases() {
     return this.spotifyService.getNewReleasesCron();
+  }
+
+  @Get('new-releases')
+  getNewReleasesByUser(@Req() req) {
+    return this.spotifyService.getNewReleasesByUser(req.userInfos);
   }
 
   @Get('album/tracks/:id')
