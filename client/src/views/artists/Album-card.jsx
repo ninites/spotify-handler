@@ -25,7 +25,7 @@ const AlbumCard = ({ album, refetchAlbums }) => {
   };
 
   const showTrackList = async (e, album) => {
-    const url = '/spotify/album/tracks/' + album.id;
+    const url = '/spotify/album/tracks/' + album.album_id;
     const tracksResponse = await axios.get(url);
     const tracks = tracksResponse.data.body.items;
     if (tracks) {
@@ -85,7 +85,7 @@ const AlbumCard = ({ album, refetchAlbums }) => {
           label="Ajouter l' album"
           style={{ marginTop: '1rem' }}
           onClick={() => {
-            addAlbum(album.id);
+            addAlbum(album.album_id);
           }}
         ></Button>
       </div>

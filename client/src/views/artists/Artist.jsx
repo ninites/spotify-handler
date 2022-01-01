@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import useRequest from '../../customhooks/useRequest';
 
-import { useState, useRef, useContext } from 'react';
+import { useState, useContext } from 'react';
 import ArtistContext from '../../contexts/artists-context';
 
 import './artist.css';
@@ -64,7 +64,7 @@ const Artist = () => {
                 <AlbumCard
                   album={album}
                   refetchAlbums={[refetch, setRefetch]}
-                  key={album.id}
+                  key={album.album_id}
                 />
               </div>
             );
