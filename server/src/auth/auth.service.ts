@@ -159,12 +159,16 @@ export class AuthService {
       process.env.SPOTIFY_REFRESH_TOKEN_MIN,
     );
 
+    let user = userInfos;
+
     if (timeLeft < minTimeBeforeRefresh) {
       const newToken = await this.refreshToken(userInfos);
-      await this.usersService.update(userInfos._id, {
+      user = await this.usersService.update(userInfos._id, {
         spotify: { access_token: newToken, access_token_created: new Date() },
       });
     }
+
+    return user;
   }
 
   private async refreshSpotifyToken(userInfos: UserInfos): Promise<string> {

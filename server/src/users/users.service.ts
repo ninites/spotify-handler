@@ -108,7 +108,7 @@ export class UsersService {
     const id = { _id: userId };
     const deleteItem = {
       $pull: {
-        'spotify.releases': { album_id: releaseId },
+        'spotify.releases': { id: releaseId },
       },
     };
 

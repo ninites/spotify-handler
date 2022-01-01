@@ -3,12 +3,14 @@ import * as SpotifyWebApi from 'spotify-web-api-node';
 import { AuthService } from 'src/auth/auth.service';
 import { UserInfos, UserRelease } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
+import { MailService } from 'src/utils/mail/mail.service';
 
 @Injectable()
 export class SpotifyService {
   constructor(
     private readonly userService: UsersService,
     private readonly authService: AuthService,
+    private readonly mailService: MailService,
   ) {}
 
   private readonly clientId = process.env.SPOTIFY_CLIENTID;
@@ -152,32 +154,54 @@ export class SpotifyService {
   }
 
   async getNewReleasesCron() {
+    console.log('[CRON/GET NEW RELEASES] START');
     const users = await this.userService.findAll();
 
     // REFRESH TOKEN IF NEEDED
-    users.forEach((user: UserInfos) => {
-      this.authService.refreshTokenCheck(user);
-    });
+    const refreshedUsers = await Promise.all(
+      users.map(async (user: UserInfos) => {
+        return await this.authService.refreshTokenCheck(user);
+      }),
+    );
 
     // GET MISSINGS NEW RELEASES
     const usersMissingAlbums = await Promise.all(
-      users.map(async (user: UserInfos) => {
+      refreshedUsers.map(async (user: UserInfos) => {
         const missingReleases = await this.getNewReleases(user);
 
         return {
-          user_id: user._id,
+          infos: user,
           missing_releases: missingReleases,
         };
       }),
     );
 
     // REPLACE THEM IN APP DB
-    usersMissingAlbums.forEach(async (user) => {
-      await this.userService.changeReleases(
-        user.user_id,
-        user.missing_releases,
-      );
-    });
+    const result = await Promise.all(
+      usersMissingAlbums.map(async (user) => {
+        await this.userService.changeReleases(
+          user.infos._id,
+          user.missing_releases,
+        );
+        return {
+          infos: user.infos,
+          releases: user.missing_releases,
+        };
+      }),
+    );
+
+    // SEND MAIL
+    await Promise.all(
+      result.map(async (user) => {
+        if (user.releases.length === 0) {
+          return;
+        }
+        return await this.mailService.sendNewReleases(
+          user.infos,
+          user.releases,
+        );
+      }),
+    );
 
     return true;
   }
@@ -216,16 +240,10 @@ export class SpotifyService {
       userInfos,
     );
     const releasesWithoutDups = this.removeDuplicate(missingReleases, 'id');
-    const releasesForUser = await this.filterByUserPossesion(
+    const result = await this.filterByUserPossesion(
       releasesWithoutDups,
       userInfos,
     );
-
-    // REPLACE ID BY ALBUM_ID
-    const result = releasesForUser.map((release) => {
-      delete Object.assign(release, { ['album_id']: release['id'] })['id'];
-      return release;
-    });
 
     return result;
   }

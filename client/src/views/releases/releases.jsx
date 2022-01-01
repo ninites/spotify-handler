@@ -8,13 +8,13 @@ const Releases = () => {
   const [refetch, setRefetch] = useState(false);
 
   return (
-    <div className="m-2">
+    <div className="m-2 p-fluid w-full flex flex-wrap justify-content-center">
       {releases.map((release) => {
         return (
           <AlbumCard
             album={release}
             refetchAlbums={[refetch, setRefetch]}
-            key={release.album_id}
+            key={release.id}
           />
         );
       })}

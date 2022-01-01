@@ -64,7 +64,7 @@ const Artist = () => {
                 <AlbumCard
                   album={album}
                   refetchAlbums={[refetch, setRefetch]}
-                  key={album.album_id}
+                  key={album.id}
                 />
               </div>
             );

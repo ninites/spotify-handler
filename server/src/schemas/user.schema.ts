@@ -16,7 +16,7 @@ class Release extends Document {
   @Prop({ default: '' })
   href: string;
   @Prop({ default: '' })
-  album_id: string;
+  id: string;
   @Prop()
   images: [];
   @Prop({ default: '' })
