@@ -23,7 +23,7 @@ export class SpotifyController {
 
   @Get('saved-albums')
   getMySavedAlbums(@Req() req) {
-    return this.spotifyService.getMySavedAlbums(req.userInfos);
+    return this.spotifyService.getMySavedAlbums(req.userInfos, {});
   }
 
   @Post('saved-albums')
@@ -65,11 +65,6 @@ export class SpotifyController {
   @Get('new-releases')
   getNewReleasesByUser(@Req() req) {
     return this.spotifyService.getNewReleasesByUser(req.userInfos);
-  }
-
-  @Delete('new-releases/:id')
-  deleteNewReleasesByUser(@Param('id') id: string, @Req() req) {
-    return this.spotifyService.deleteNewReleasesByUser(id, req.userInfos);
   }
 
   @Get('album/tracks/:id')

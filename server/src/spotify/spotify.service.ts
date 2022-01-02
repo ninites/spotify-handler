@@ -4,7 +4,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { UserInfos, UserRelease } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { MailService } from 'src/utils/mail/mail.service';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
 
 @Injectable()
 export class SpotifyService {
@@ -12,6 +12,7 @@ export class SpotifyService {
     private readonly userService: UsersService,
     private readonly authService: AuthService,
     private readonly mailService: MailService,
+    private readonly schedulerRegistry: SchedulerRegistry,
   ) {}
 
   private readonly clientId = process.env.SPOTIFY_CLIENTID;
@@ -68,12 +69,12 @@ export class SpotifyService {
     return artists;
   }
 
-  async getMySavedAlbums(userInfos: UserInfos) {
+  async getMySavedAlbums(userInfos: UserInfos, config) {
     const spotifyApi = this.setSpotifyApi(userInfos, {
       setAccess: true,
       setRefresh: false,
     });
-    const albums = await spotifyApi.getMySavedAlbums();
+    const albums = await spotifyApi.getMySavedAlbums(config);
     return albums;
   }
 
@@ -154,9 +155,14 @@ export class SpotifyService {
     return artistsList;
   }
 
-  @Cron(CronExpression.EVERY_WEEK)
+  @Cron(CronExpression.EVERY_30_SECONDS, { name: 'new-releases' })
   async getNewReleasesCron() {
     console.log('[CRON/GET NEW RELEASES] START');
+
+    // PREVENT CRON LOADING TWICE
+    const job = this.schedulerRegistry.getCronJob('new-releases');
+    job.stop();
+
     const users = await this.userService.findAll();
 
     // REFRESH TOKEN IF NEEDED
@@ -204,6 +210,10 @@ export class SpotifyService {
         );
       }),
     );
+
+    // PREVENT CRON LOADING TWICE
+    job.start();
+
     console.log('[CRON/GET NEW RELEASES] DONE ');
     return true;
   }
@@ -215,12 +225,6 @@ export class SpotifyService {
     });
 
     return user.spotify.releases;
-  }
-
-  async deleteNewReleasesByUser(itemid: string, userInfos: UserInfos) {
-    console.log(userInfos);
-
-    return 'plop';
   }
 
   private async getNewReleases(userInfos: UserInfos): Promise<UserRelease[]> {
@@ -251,7 +255,7 @@ export class SpotifyService {
   }
 
   private async filterByUserPossesion(data, userInfos: UserInfos) {
-    const userAlbums = await this.getMySavedAlbums(userInfos);
+    const userAlbums = await this.getAllMySavedAlbums(userInfos);
     const savedAlbumsIds = userAlbums.body.items.map((item) => {
       return item.album.id;
     });
@@ -311,14 +315,46 @@ export class SpotifyService {
     return newReleaseList;
   }
 
+  private async getAllMySavedAlbums(userInfos: UserInfos) {
+    const albumList = {
+      body: {
+        items: [],
+      },
+    };
+    let fetchLoop = true;
+    let offset = 0;
+
+    while (fetchLoop) {
+      const config: any = {
+        limit: 50,
+        offset: offset,
+      };
+
+      const albumsResponse = await this.getMySavedAlbums(userInfos, config);
+      const albumsItems = albumsResponse.body.items;
+      albumList.body.items.push(...albumsItems);
+
+      offset += 50;
+      if (albumsItems.length === 0) {
+        fetchLoop = false;
+      }
+    }
+    return albumList;
+  }
+
   private extractArtistsNames(items) {
     return items.map((item) => {
       return item.name;
     });
   }
 
+  /**
+   * DEPRECATED NEED REFACTO
+   * @param userInfos
+   * @returns
+   */
   async getMissingsAlbums(userInfos: UserInfos) {
-    const resp = await this.getMySavedAlbums(userInfos);
+    const resp = await this.getAllMySavedAlbums(userInfos);
     const userAlbums = resp.body.items;
     const userArtistWithAlbums = await this.getUserArtistWithAlbums(userInfos);
     const missingAlbums = userArtistWithAlbums.map((artistAlbums) => {
@@ -337,15 +373,17 @@ export class SpotifyService {
 
   async getMissingAlbumsById(id: string, userInfos: UserInfos) {
     const artistsAlbums = await this.getArtistAlbums(id, userInfos);
-    const userAlbums = await this.getMySavedAlbums(userInfos);
-    const artistsLPs = this.removeDuplicate(artistsAlbums.body.items, 'name');
-    const missingAlbums = artistsLPs.filter((album) => {
+    const userAlbums = await this.getAllMySavedAlbums(userInfos);
+    const missingAlbums = artistsAlbums.body.items.filter((album) => {
       const userGotAlbum = userAlbums.body.items.find((userAlbum) => {
-        return userAlbum.album.name === album.name;
+        const result = userAlbum.album.name === album.name;
+        return result;
       });
+
       return userGotAlbum ? false : true;
     });
-    return missingAlbums;
+    const result = this.removeDuplicate(missingAlbums, 'name');
+    return result;
   }
 
   private removeDuplicate(

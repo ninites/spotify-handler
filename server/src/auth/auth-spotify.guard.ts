@@ -45,10 +45,10 @@ export class AuthSpotifyGuard implements CanActivate {
     const usersInfos = await this.getUserInfos(token);
 
     // CHECK IF NEED TO REFRESH TOKEN //
-    await this.authService.refreshTokenCheck(usersInfos);
+    const user = await this.authService.refreshTokenCheck(usersInfos);
 
     // SURCHARGE REQ WITH USER INFOS //
-    req.userInfos = usersInfos;
+    req.userInfos = user;
 
     return true;
   }
@@ -59,7 +59,6 @@ export class AuthSpotifyGuard implements CanActivate {
       id: userId,
       email: '',
     });
-
     return userInfos;
   }
 }
