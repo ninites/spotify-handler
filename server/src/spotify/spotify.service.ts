@@ -38,6 +38,15 @@ export class SpotifyService {
 
   /////// SPOTIFY API METHODS //////
 
+  async getMe(userInfos: UserInfos) {
+    const spotifyApi = this.setSpotifyApi(userInfos, {
+      setAccess: true,
+      setRefresh: false,
+    });
+    const me = await spotifyApi.getMe();
+    return me;
+  }
+
   async getArtistById(id: string, userInfos: UserInfos) {
     const spotifyApi = this.setSpotifyApi(userInfos, {
       setAccess: true,
@@ -116,6 +125,10 @@ export class SpotifyService {
   }
 
   ////// SPECIFIC APP METHODS /////
+
+  async getSpotifyUserInfos(userInfos: UserInfos) {
+    return this.getMe(userInfos);
+  }
 
   async getAllFollowedArtists(userInfos: UserInfos) {
     const spotifyApi = this.setSpotifyApi(userInfos, {

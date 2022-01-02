@@ -81,4 +81,9 @@ export class SpotifyController {
       return this.spotifyService.getArtistByName(name, req.userInfos);
     }
   }
+
+  @Get('user-infos')
+  getSpotifyUserInfos(@Req() req) {
+    return this.spotifyService.getSpotifyUserInfos(req.userInfos);
+  }
 }

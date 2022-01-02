@@ -1,9 +1,10 @@
 import { Button } from 'primereact/button';
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AutoComplete } from 'primereact/autocomplete';
 import ArtistContext from '../contexts/artists-context';
 import { useCookies } from 'react-cookie';
+import useRequest from '../customhooks/useRequest';
 
 const MenuRight = ({ loginState }) => {
   const [loginStatus, setLoginStatus] = loginState;
@@ -12,6 +13,8 @@ const MenuRight = ({ loginState }) => {
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [searchArtist, setSearchArtist] = useState('');
   const navigate = useNavigate();
+  const spotifyUserInfos = useRequest('get', '/spotify/user-infos');
+  const [spotifyUser, setSpotifyUser] = useState({});
 
   const redirect = (url) => {
     navigate(url);
@@ -74,8 +77,12 @@ const MenuRight = ({ loginState }) => {
     navigate('login');
   };
 
+  useEffect(() => {
+    setSpotifyUser(spotifyUserInfos.data.body);
+  }, [spotifyUserInfos]);
+
   return (
-    <div>
+    <div className="flex">
       {!loginStatus.app && (
         <Button
           icon="pi pi-fw pi-sign-in"
@@ -100,21 +107,32 @@ const MenuRight = ({ loginState }) => {
         />
       )}
       {loginStatus.app && loginStatus.spotify && (
-        <AutoComplete
-          style={{ marginRight: '0.5rem' }}
-          size={15}
-          scrollHeight="300px"
-          value={searchArtist}
-          placeholder="Artiste"
-          suggestions={searchSuggestions}
-          completeMethod={createSuggestions}
-          field="Artiste"
-          itemTemplate={autoCompleteItemTemplate}
-          onChange={(e) => setSearchArtist(e.value)}
-          onSelect={(e) => {
-            goToSelectedArtist(e.value);
-          }}
-        />
+        <div className="flex align-items-center">
+          <AutoComplete
+            style={{ marginRight: '0.5rem' }}
+            size={15}
+            scrollHeight="300px"
+            value={searchArtist}
+            placeholder="Artiste"
+            suggestions={searchSuggestions}
+            completeMethod={createSuggestions}
+            field="Artiste"
+            itemTemplate={autoCompleteItemTemplate}
+            onChange={(e) => setSearchArtist(e.value)}
+            onSelect={(e) => {
+              goToSelectedArtist(e.value);
+            }}
+          />
+          {spotifyUser &&
+            spotifyUser.images &&
+            spotifyUser.images.length > 0 && (
+              <img
+                src={spotifyUser.images[0].url}
+                alt="userProfileImage"
+                style={{ height: '2.6rem', marginRight: '0.5rem' }}
+              />
+            )}
+        </div>
       )}
       {loginStatus.app && (
         <Button
