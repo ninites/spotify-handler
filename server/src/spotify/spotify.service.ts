@@ -155,7 +155,7 @@ export class SpotifyService {
     return artistsList;
   }
 
-  @Cron(CronExpression.EVERY_30_SECONDS, { name: 'new-releases' })
+  @Cron(CronExpression.EVERY_WEEK, { name: 'new-releases' })
   async getNewReleasesCron() {
     console.log('[CRON/GET NEW RELEASES] START');
 
