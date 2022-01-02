@@ -13,7 +13,7 @@ import ReleasesContext from '../contexts/releases-context';
 import LoginStatusContext from '../contexts/login-status-context';
 import { useCookies } from 'react-cookie';
 import Login from '../views/login/logins/login';
-import axios from 'axios';
+import NoAuth from '../views/login/auth/no-auth';
 
 const Main = () => {
   const [cookies, setCookie] = useCookies(['spotify', 'app']);
@@ -70,18 +70,25 @@ const Main = () => {
               <Route element={<Layout />}>
                 <Route path="login-redirect" element={<LoginRedirect />} />
                 <Route
+                  path="login"
+                  element={
+                    <NoAuth>
+                      <Login />
+                    </NoAuth>
+                  }
+                />
+                <Route
                   path="login/spotify"
                   element={
-                    <RequireAuth redirectTo="/login" type="app">
+                    <RequireAuth type={'app'}>
                       <LoginSpotify />
                     </RequireAuth>
                   }
                 />
-                <Route path="login" element={<Login />} />
                 <Route
                   path="/artists"
                   element={
-                    <RequireAuth redirectTo="/login/spotify" type="spotify">
+                    <RequireAuth type={'full'}>
                       <ArtistsList />
                     </RequireAuth>
                   }
@@ -89,7 +96,7 @@ const Main = () => {
                 <Route
                   path="/artists/:id"
                   element={
-                    <RequireAuth redirectTo="/login/spotify" type="spotify">
+                    <RequireAuth type={'full'}>
                       <Artist />
                     </RequireAuth>
                   }
@@ -97,7 +104,7 @@ const Main = () => {
                 <Route
                   path="/new-releases"
                   element={
-                    <RequireAuth redirectTo="/login/spotify" type="spotify">
+                    <RequireAuth type={'full'}>
                       <Releases />
                     </RequireAuth>
                   }
