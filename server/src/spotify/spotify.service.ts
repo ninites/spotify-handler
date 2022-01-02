@@ -112,15 +112,21 @@ export class SpotifyService {
     return tracks;
   }
 
-  async getArtistAlbums(id: string, userInfos: UserInfos) {
+  async getArtistAlbums(id: string, userInfos: UserInfos, config?) {
     const spotifyApi = this.setSpotifyApi(userInfos, {
       setAccess: true,
       setRefresh: false,
     });
-    const albums = await spotifyApi.getArtistAlbums(id, {
+
+    const configuration = {
       offset: 0,
+      limit: 50,
       include_groups: 'album',
-    });
+      ...config,
+    };
+
+    const albums = await spotifyApi.getArtistAlbums(id, configuration);
+
     return albums;
   }
 
@@ -128,44 +134,6 @@ export class SpotifyService {
 
   async getSpotifyUserInfos(userInfos: UserInfos) {
     return this.getMe(userInfos);
-  }
-
-  async getAllFollowedArtists(userInfos: UserInfos) {
-    const spotifyApi = this.setSpotifyApi(userInfos, {
-      setAccess: true,
-      setRefresh: false,
-    });
-
-    const artistsList = {
-      body: {
-        artists: {
-          items: [],
-        },
-      },
-    };
-    let fetchLoop = true;
-    let after = '';
-
-    while (fetchLoop) {
-      const config: any = {
-        limit: 50,
-      };
-      if (after) {
-        config.after = after;
-      }
-
-      const artistsListRequest = await spotifyApi.getFollowedArtists(config);
-      const artistsItems = artistsListRequest.body.artists.items;
-      artistsList.body.artists.items.push(...artistsItems);
-      const lastArtist = artistsItems[config.limit - 1];
-      after = lastArtist ? lastArtist.id : '';
-
-      if (!after) {
-        fetchLoop = false;
-      }
-    }
-
-    return artistsList;
   }
 
   @Cron(CronExpression.EVERY_WEEK, { name: 'new-releases' })
@@ -329,6 +297,18 @@ export class SpotifyService {
   }
 
   private async getAllMySavedAlbums(userInfos: UserInfos) {
+    return await this.getAllAlbums(userInfos, 'saved');
+  }
+
+  private async getAllArtistAlbums(id: string, userInfos: UserInfos) {
+    return await this.getAllAlbums(userInfos, 'artist', id);
+  }
+
+  private async getAllAlbums(
+    userInfos: UserInfos,
+    type: 'saved' | 'artist',
+    artistId?: string,
+  ) {
     const albumList = {
       body: {
         items: [],
@@ -343,7 +323,23 @@ export class SpotifyService {
         offset: offset,
       };
 
-      const albumsResponse = await this.getMySavedAlbums(userInfos, config);
+      let albumsResponse;
+
+      switch (type) {
+        case 'saved':
+          albumsResponse = await this.getMySavedAlbums(userInfos, config);
+          break;
+        case 'artist':
+          albumsResponse = await this.getArtistAlbums(
+            artistId,
+            userInfos,
+            config,
+          );
+          break;
+        default:
+          break;
+      }
+
       const albumsItems = albumsResponse.body.items;
       albumList.body.items.push(...albumsItems);
 
@@ -353,6 +349,44 @@ export class SpotifyService {
       }
     }
     return albumList;
+  }
+
+  async getAllFollowedArtists(userInfos: UserInfos) {
+    const spotifyApi = this.setSpotifyApi(userInfos, {
+      setAccess: true,
+      setRefresh: false,
+    });
+
+    const artistsList = {
+      body: {
+        artists: {
+          items: [],
+        },
+      },
+    };
+    let fetchLoop = true;
+    let after = '';
+
+    while (fetchLoop) {
+      const config: any = {
+        limit: 50,
+      };
+      if (after) {
+        config.after = after;
+      }
+
+      const artistsListRequest = await spotifyApi.getFollowedArtists(config);
+      const artistsItems = artistsListRequest.body.artists.items;
+      artistsList.body.artists.items.push(...artistsItems);
+      const lastArtist = artistsItems[config.limit - 1];
+      after = lastArtist ? lastArtist.id : '';
+
+      if (!after) {
+        fetchLoop = false;
+      }
+    }
+
+    return artistsList;
   }
 
   private extractArtistsNames(items) {
@@ -385,7 +419,7 @@ export class SpotifyService {
   }
 
   async getMissingAlbumsById(id: string, userInfos: UserInfos) {
-    const artistsAlbums = await this.getArtistAlbums(id, userInfos);
+    const artistsAlbums = await this.getAllArtistAlbums(id, userInfos);
     const userAlbums = await this.getAllMySavedAlbums(userInfos);
     const missingAlbums = artistsAlbums.body.items.filter((album) => {
       const userGotAlbum = userAlbums.body.items.find((userAlbum) => {
@@ -422,7 +456,10 @@ export class SpotifyService {
     const userArtists = response.body.artists.items;
     const artistsWithTheirAlbums = await Promise.all(
       userArtists.map(async (artist) => {
-        const artistAlbums = await this.getArtistAlbums(artist.id, userInfos);
+        const artistAlbums = await this.getAllArtistAlbums(
+          artist.id,
+          userInfos,
+        );
         return {
           artist: artist,
           albums: artistAlbums.body.items,
