@@ -3,7 +3,7 @@ import { Menubar } from 'primereact/menubar';
 import './layout.css';
 import { useNavigate } from 'react-router-dom';
 
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 
 import LoginStatusContext from '../contexts/login-status-context';
 

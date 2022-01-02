@@ -1,10 +1,13 @@
 import { Button } from 'primereact/button';
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AutoComplete } from 'primereact/autocomplete';
 import ArtistContext from '../contexts/artists-context';
 import { useCookies } from 'react-cookie';
 import useRequest from '../customhooks/useRequest';
+import useWindowSize from '../customhooks/useWindowSize';
+
+const PHONE_THRESHOLD = 450;
 
 const MenuRight = ({ loginState }) => {
   const [loginStatus, setLoginStatus] = loginState;
@@ -15,6 +18,7 @@ const MenuRight = ({ loginState }) => {
   const navigate = useNavigate();
   const spotifyUserInfos = useRequest('get', '/spotify/user-infos');
   const [spotifyUser, setSpotifyUser] = useState({});
+  const windowSize = useWindowSize();
 
   const redirect = (url) => {
     navigate(url);
@@ -36,12 +40,14 @@ const MenuRight = ({ loginState }) => {
     const artist = findArtist(item);
     return (
       <div className="flex">
-        <div
-          className="w-2 flex-initial flex align-items-center justify-content-center mr-2 bg-no-repeat bg-cover bg-center"
-          style={{
-            backgroundImage: `url(${artist.images[0].url})`,
-          }}
-        ></div>
+        {windowSize.width > PHONE_THRESHOLD && (
+          <div
+            className="w-2 flex-initial flex align-items-center justify-content-center mr-2 bg-no-repeat bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${artist.images[0].url})`,
+            }}
+          ></div>
+        )}
         <p className="flex-initial flex align-items-center justify-content-center">
           {artist.name}
         </p>
@@ -110,7 +116,7 @@ const MenuRight = ({ loginState }) => {
         <div className="flex align-items-center">
           <AutoComplete
             style={{ marginRight: '0.5rem' }}
-            size={15}
+            size={windowSize.width > PHONE_THRESHOLD ? 25 : 10}
             scrollHeight="300px"
             value={searchArtist}
             placeholder="Artiste"
@@ -123,15 +129,17 @@ const MenuRight = ({ loginState }) => {
               goToSelectedArtist(e.value);
             }}
           />
-          {spotifyUser &&
-            spotifyUser.images &&
-            spotifyUser.images.length > 0 && (
-              <img
-                src={spotifyUser.images[0].url}
-                alt="userProfileImage"
-                style={{ height: '2.6rem', marginRight: '0.5rem' }}
-              />
-            )}
+          {spotifyUser && spotifyUser.images && spotifyUser.images.length > 0 && (
+            <img
+              src={spotifyUser.images[0].url}
+              alt="userProfileImage"
+              style={{
+                height: '2.7rem',
+                marginRight: '0.5rem',
+                borderRadius: '4px',
+              }}
+            />
+          )}
         </div>
       )}
       {loginStatus.app && (

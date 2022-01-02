@@ -1,7 +1,7 @@
-import { Card } from "primereact/card";
-import { useContext } from "react";
-import { Link } from "react-router-dom";
-import ArtistContext from "../../contexts/artists-context";
+import { Card } from 'primereact/card';
+import { useContext } from 'react';
+import { Link } from 'react-router-dom';
+import ArtistContext from '../../contexts/artists-context';
 
 const ArtistsList = () => {
   const [artists] = useContext(ArtistContext);
@@ -26,9 +26,9 @@ const ArtistsList = () => {
                     ></div>
                   </Link>
                 }
-                style={{ width: "15rem" }}
+                style={{ width: '15rem' }}
               >
-                {artist.name}
+                <div className="font-semibold">{artist.name}</div>
               </Card>
             </div>
           );

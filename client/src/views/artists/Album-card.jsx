@@ -46,6 +46,7 @@ const AlbumCard = ({ album, refetchAlbums }) => {
       console.log(err);
     }
   };
+
   return (
     <Card
       header={
@@ -54,11 +55,12 @@ const AlbumCard = ({ album, refetchAlbums }) => {
           style={{ backgroundImage: `url(${album.images[1].url})` }}
         ></div>
       }
-      style={{ width: '15rem', height: '350px' }}
+      style={{ width: '20rem', height: '350px' }}
     >
       <div className="album-card-content">
         <div>
-          <div className="font-semibold ">{computeTitle(album.name)}</div>
+          <div>Date de sortie : {album.release_date}</div>
+          <div className="font-semibold mt-1">{computeTitle(album.name)}</div>
           <div
             className="font-italic cursor-pointer mt-1"
             onClick={(e) => {
