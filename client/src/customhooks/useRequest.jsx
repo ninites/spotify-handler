@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const useRequest = (method, url, forceRefresh) => {
   const [data, setData] = useState([]);
-  const [error, setError] = useState("");
-  const [isLoading, setisLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [isLoading, setisLoading] = useState(true);
 
   useEffect(() => {
     let isSubscribe = true;
