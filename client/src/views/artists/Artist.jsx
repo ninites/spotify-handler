@@ -9,6 +9,7 @@ import './artist.css';
 import AlbumCard from './Album-card';
 
 import ProgressSpinnerW from '../../shared/progress-spinner-w';
+import FullAppLoadingContext from '../../contexts/full-app-loading';
 
 const Artist = () => {
   let params = useParams();
@@ -26,6 +27,9 @@ const Artist = () => {
     refetch
   );
   const [albumsToDisplay, setAlbumsToDisplay] = useState([]);
+  const [isLoading, setisLoading] = useState(true);
+
+  const fullAppLoading = useContext(FullAppLoadingContext);
 
   useEffect(() => {
     if (artists.length > 0) {
@@ -38,8 +42,17 @@ const Artist = () => {
     setAlbumsToDisplay(albums.data);
   }, [albums]);
 
+  useEffect(() => {
+    const fullLoading = !albums.isLoading && !fullAppLoading;
+    if (fullLoading) {
+      setisLoading(false);
+    } else {
+      setisLoading(true);
+    }
+    console.log('fulla', fullAppLoading, 'alb', albums.isLoading);
+  }, [albums.isLoading, fullAppLoading]);
   return (
-    <ProgressSpinnerW loading={albums.isLoading}>
+    <ProgressSpinnerW loading={isLoading}>
       <div className="w-full">
         <div className="mt-2 p-fluid w-full flex flex-wrap justify-content-center miss-container">
           <div className="w-2 miss-left">

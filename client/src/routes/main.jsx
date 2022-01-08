@@ -14,7 +14,7 @@ import LoginStatusContext from '../contexts/login-status-context';
 import { useCookies } from 'react-cookie';
 import Login from '../views/login/logins/login';
 import NoAuth from '../views/login/auth/no-auth';
-import ProgressSpinnerW from '../shared/progress-spinner-w';
+import FullAppLoadingContext from '../contexts/full-app-loading';
 
 const Main = () => {
   const [cookies, setCookie] = useCookies(['spotify', 'app']);
@@ -35,7 +35,7 @@ const Main = () => {
   const [artists, setArtists] = useState([]);
   const artistsRequest = useRequest('get', '/spotify/followed-artists');
 
-  const [loading, setLoading] = useState(true);
+  const [fullAppLoading, setFullAppLoading] = useState(true);
 
   useEffect(() => {
     const gotAnswer = artistsRequest.data.length !== 0;
@@ -59,27 +59,28 @@ const Main = () => {
     const fetchingOver =
       !artistsRequest.isLoading && !newReleasesResponse.isLoading;
     if (fetchingOver) {
-      setLoading(false);
+      setFullAppLoading(false);
     } else {
-      setLoading(true);
+      setFullAppLoading(true);
     }
   }, [artistsRequest.isLoading, newReleasesResponse.isLoading]);
 
   useContext(ArtistContext);
   useContext(ReleasesContext);
   useContext(LoginStatusContext);
+  useContext(FullAppLoadingContext);
 
   return (
     <BrowserRouter>
-      <LoginStatusContext.Provider value={[loginStatus, setLoginStatus]}>
-        <ArtistContext.Provider value={[artists, setArtists]}>
-          <ReleasesContext.Provider
-            value={{
-              data: [releases, setReleases],
-              refresh: [refetchReleases, setRefetchReleases],
-            }}
-          >
-            <ProgressSpinnerW loading={loading}>
+      <FullAppLoadingContext.Provider value={fullAppLoading}>
+        <LoginStatusContext.Provider value={[loginStatus, setLoginStatus]}>
+          <ArtistContext.Provider value={[artists, setArtists]}>
+            <ReleasesContext.Provider
+              value={{
+                data: [releases, setReleases],
+                refresh: [refetchReleases, setRefetchReleases],
+              }}
+            >
               <Routes>
                 <Route element={<Layout />}>
                   <Route path="login-redirect" element={<LoginRedirect />} />
@@ -127,10 +128,10 @@ const Main = () => {
                   <Route path="*" element={<Navigate to="/artists" />} />
                 </Route>
               </Routes>
-            </ProgressSpinnerW>
-          </ReleasesContext.Provider>
-        </ArtistContext.Provider>
-      </LoginStatusContext.Provider>
+            </ReleasesContext.Provider>
+          </ArtistContext.Provider>
+        </LoginStatusContext.Provider>
+      </FullAppLoadingContext.Provider>
     </BrowserRouter>
   );
 };
