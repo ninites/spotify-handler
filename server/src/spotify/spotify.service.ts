@@ -5,6 +5,7 @@ import { UserInfos, UserRelease } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { MailService } from 'src/utils/mail/mail.service';
 import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
+import { DatesService } from 'src/utils/dates/dates.service';
 
 @Injectable()
 export class SpotifyService {
@@ -13,10 +14,13 @@ export class SpotifyService {
     private readonly authService: AuthService,
     private readonly mailService: MailService,
     private readonly schedulerRegistry: SchedulerRegistry,
+    private readonly datesService: DatesService,
   ) {}
 
   private readonly clientId = process.env.SPOTIFY_CLIENTID;
   private readonly clientSecret = process.env.SPOTIFY_CLIENTSECRET;
+
+  private readonly newReleaseMonthRange = 1;
 
   setSpotifyApi(user, { setAccess, setRefresh }) {
     const { refresh_token, access_token } = user.spotify;
@@ -136,7 +140,7 @@ export class SpotifyService {
     return this.getMe(userInfos);
   }
 
-  @Cron(CronExpression.EVERY_WEEK, { name: 'new-releases' })
+  @Cron(CronExpression.EVERY_WEEKEND, { name: 'new-releases' })
   async getNewReleasesCron() {
     console.log('[CRON/GET NEW RELEASES] START');
 
@@ -226,7 +230,7 @@ export class SpotifyService {
       newReleasesItems,
       userInfos,
     );
-    const releasesWithoutDups = this.removeDuplicate(missingReleases, 'id');
+    const releasesWithoutDups = this.removeDuplicate(missingReleases, 'name');
     const result = await this.filterByUserPossesion(
       releasesWithoutDups,
       userInfos,
@@ -251,15 +255,53 @@ export class SpotifyService {
     userInfos: UserInfos,
   ): Promise<UserRelease[]> {
     const userArtists = await this.getAllFollowedArtists(userInfos);
-    const userArtistsNames: string[] = this.extractArtistsNames(
+    const userArtistsNames: string[] = this.extractArtistsInfos(
       userArtists.body.artists.items,
+      'name',
     );
-    return newReleasesItems.filter((item) => {
+
+    const userArtistsIds = this.extractArtistsInfos(
+      userArtists.body.artists.items,
+      'id',
+    );
+
+    const silentNewReleases = await this.getSilentReleases(
+      userArtistsIds,
+      userInfos,
+    );
+
+    const newReleases = newReleasesItems.filter((item) => {
       const artistIsPresent = item.artists.map((artist) => {
         return userArtistsNames.includes(artist.name);
       });
       return artistIsPresent.includes(true);
     });
+
+    const result = [...newReleases, ...silentNewReleases];
+
+    return result;
+  }
+
+  private async getSilentReleases(artistsIds: string[], userInfos: UserInfos) {
+    const list = await Promise.all(
+      artistsIds.map(async (id: string) => {
+        const artistAlbumsResponse = await this.getAllArtistAlbums(
+          id,
+          userInfos,
+        );
+        const artistAlbums = artistAlbumsResponse.body.items;
+        const newHiddenReleases = artistAlbums.filter((album) => {
+          const isInDatesRange = this.datesService.isInRange(
+            album.release_date,
+            this.newReleaseMonthRange,
+          );
+          return isInDatesRange;
+        });
+        return newHiddenReleases;
+      }),
+    );
+    const result = list.flat();
+    return result;
   }
 
   private async getAllNewReleases(userInfos: UserInfos) {
@@ -389,9 +431,9 @@ export class SpotifyService {
     return artistsList;
   }
 
-  private extractArtistsNames(items) {
+  private extractArtistsInfos(items, type: string) {
     return items.map((item) => {
-      return item.name;
+      return item[type];
     });
   }
 
