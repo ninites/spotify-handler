@@ -29,7 +29,7 @@ const ArtistsList = () => {
 
   return (
     <ProgressSpinnerW loading={fullAppLoading}>
-      <div className="m-2 w-full p-fluid ">
+      <div className="w-full p-fluid mt-3">
         <div className="m-2 font-semibold surface-100 p-2 border-round ">
           Mes artistes
         </div>

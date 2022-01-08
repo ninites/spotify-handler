@@ -49,8 +49,8 @@ const Artist = () => {
     } else {
       setisLoading(true);
     }
-    console.log('fulla', fullAppLoading, 'alb', albums.isLoading);
   }, [albums.isLoading, fullAppLoading]);
+
   return (
     <ProgressSpinnerW loading={isLoading}>
       <div className="w-full">
