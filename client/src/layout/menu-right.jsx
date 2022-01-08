@@ -6,8 +6,7 @@ import ArtistContext from '../contexts/artists-context';
 import { useCookies } from 'react-cookie';
 import useRequest from '../customhooks/useRequest';
 import useWindowSize from '../customhooks/useWindowSize';
-
-const PHONE_THRESHOLD = 450;
+import { BREAKPOINT } from '../global/variables';
 
 const MenuRight = ({ loginState }) => {
   const [loginStatus, setLoginStatus] = loginState;
@@ -40,7 +39,7 @@ const MenuRight = ({ loginState }) => {
     const artist = findArtist(item);
     return (
       <div className="flex">
-        {windowSize.width > PHONE_THRESHOLD && (
+        {windowSize.width > BREAKPOINT.phone && (
           <div
             className="w-2 flex-initial flex align-items-center justify-content-center mr-2 bg-no-repeat bg-cover bg-center"
             style={{
@@ -116,7 +115,7 @@ const MenuRight = ({ loginState }) => {
         <div className="flex align-items-center">
           <AutoComplete
             style={{ marginRight: '0.5rem' }}
-            size={windowSize.width > PHONE_THRESHOLD ? 25 : 10}
+            size={windowSize.width > BREAKPOINT.phone ? 25 : 10}
             scrollHeight="300px"
             value={searchArtist}
             placeholder="Artiste"

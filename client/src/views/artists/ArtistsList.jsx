@@ -2,12 +2,33 @@ import { Card } from 'primereact/card';
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import ArtistContext from '../../contexts/artists-context';
+import useWindowSize from '../../customhooks/useWindowSize';
+import { useState, useEffect } from 'react';
+import { BREAKPOINT } from '../../global/variables';
+
+const CARD_STYLE = {
+  desktop: { width: '15rem' },
+  phone: { width: '94vw' },
+};
 
 const ArtistsList = () => {
   const [artists] = useContext(ArtistContext);
+  const windowSize = useWindowSize();
+  const [cardStyle, setCardStyle] = useState(CARD_STYLE.desktop);
+
+  useEffect(() => {
+    if (windowSize.width > BREAKPOINT.phone) {
+      setCardStyle(CARD_STYLE.desktop);
+    } else {
+      setCardStyle(CARD_STYLE.phone);
+    }
+  }, [windowSize]);
 
   return (
     <div className="m-2 w-full p-fluid ">
+      <div className="m-2 font-semibold surface-100 p-2 border-round ">
+        Mes artistes
+      </div>
       <div className="flex flex-wrap card-container justify-content-center">
         {artists.map((artist) => {
           return (
@@ -26,7 +47,7 @@ const ArtistsList = () => {
                     ></div>
                   </Link>
                 }
-                style={{ width: '15rem' }}
+                style={cardStyle}
               >
                 <div className="font-semibold">{artist.name}</div>
               </Card>

@@ -1,14 +1,14 @@
+@media screen and (max-width: 450px) {
+  .miss-container {
+    display: flex !important;
+    flex-direction: column !important;
+  }
 
+  .miss-left {
+    width: 100% !important;
+  }
 
-.album-card-content {
-}
-
-@media screen and (max-width: 900px) {
-    .missing-albums {
-        width: 100%;
-    }
-
-    .displayed-albums {
-        justify-content: center !important;
-    }
+  .miss-right {
+    width: 100% !important;
+  }
 }

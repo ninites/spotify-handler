@@ -1,9 +1,16 @@
 import { Card } from 'primereact/card';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { Button } from 'primereact/button';
-import { useState, useRef, useContext } from 'react';
+import { useState, useRef, useContext , useEffect } from 'react';
 import axios from 'axios';
 import ReleasesContext from '../../contexts/releases-context';
+import { BREAKPOINT } from '../../global/variables';
+import useWindowSize from '../../customhooks/useWindowSize';
+
+const CARD_STYLE = {
+  desktop: { width: '20rem', height: '350px' },
+  phone: { width: '96vw', height: '350px' },
+};
 
 const AlbumCard = ({ album, refetchAlbums }) => {
   const { refresh } = useContext(ReleasesContext);
@@ -12,6 +19,9 @@ const AlbumCard = ({ album, refetchAlbums }) => {
 
   const [tracks, setTracks] = useState([]);
   const trackList = useRef(null);
+
+  const windowSize = useWindowSize();
+  const [cardStyle, setCardStyle] = useState(CARD_STYLE.desktop);
 
   const computeTitle = (title) => {
     if (!title) {
@@ -47,6 +57,14 @@ const AlbumCard = ({ album, refetchAlbums }) => {
     }
   };
 
+  useEffect(() => {
+    if (windowSize.width > BREAKPOINT.phone) {
+      setCardStyle(CARD_STYLE.desktop);
+    } else {
+      setCardStyle(CARD_STYLE.phone);
+    }
+  }, [windowSize]);
+
   return (
     <Card
       header={
@@ -55,7 +73,7 @@ const AlbumCard = ({ album, refetchAlbums }) => {
           style={{ backgroundImage: `url(${album.images[1].url})` }}
         ></div>
       }
-      style={{ width: '20rem', height: '350px' }}
+      style={cardStyle}
     >
       <div className="album-card-content">
         <div>

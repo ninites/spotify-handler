@@ -14,6 +14,7 @@ import LoginStatusContext from '../contexts/login-status-context';
 import { useCookies } from 'react-cookie';
 import Login from '../views/login/logins/login';
 import NoAuth from '../views/login/auth/no-auth';
+import ProgressSpinnerW from '../shared/progress-spinner-w';
 
 const Main = () => {
   const [cookies, setCookie] = useCookies(['spotify', 'app']);
@@ -34,6 +35,8 @@ const Main = () => {
   const [artists, setArtists] = useState([]);
   const artistsRequest = useRequest('get', '/spotify/followed-artists');
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const gotAnswer = artistsRequest.data.length !== 0;
     if (gotAnswer) {
@@ -52,6 +55,16 @@ const Main = () => {
     setLoginStatus({ app: gotAppCookie, spotify: gotSpotifyCookie });
   }, [cookies]);
 
+  useEffect(() => {
+    const fetchingOver =
+      !artistsRequest.isLoading && !newReleasesResponse.isLoading;
+    if (fetchingOver) {
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+  }, [artistsRequest.isLoading, newReleasesResponse.isLoading]);
+
   useContext(ArtistContext);
   useContext(ReleasesContext);
   useContext(LoginStatusContext);
@@ -66,53 +79,55 @@ const Main = () => {
               refresh: [refetchReleases, setRefetchReleases],
             }}
           >
-            <Routes>
-              <Route element={<Layout />}>
-                <Route path="login-redirect" element={<LoginRedirect />} />
-                <Route
-                  path="login"
-                  element={
-                    <NoAuth>
-                      <Login />
-                    </NoAuth>
-                  }
-                />
-                <Route
-                  path="login/spotify"
-                  element={
-                    <RequireAuth type={'app'}>
-                      <LoginSpotify />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/artists"
-                  element={
-                    <RequireAuth type={'full'}>
-                      <ArtistsList />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/artists/:id"
-                  element={
-                    <RequireAuth type={'full'}>
-                      <Artist />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/new-releases"
-                  element={
-                    <RequireAuth type={'full'}>
-                      <Releases />
-                    </RequireAuth>
-                  }
-                />
-                <Route path="/" element={<Navigate to="/artists" />} />
-                <Route path="*" element={<Navigate to="/artists" />} />
-              </Route>
-            </Routes>
+            <ProgressSpinnerW loading={loading}>
+              <Routes>
+                <Route element={<Layout />}>
+                  <Route path="login-redirect" element={<LoginRedirect />} />
+                  <Route
+                    path="login"
+                    element={
+                      <NoAuth>
+                        <Login />
+                      </NoAuth>
+                    }
+                  />
+                  <Route
+                    path="login/spotify"
+                    element={
+                      <RequireAuth type={'app'}>
+                        <LoginSpotify />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/artists"
+                    element={
+                      <RequireAuth type={'full'}>
+                        <ArtistsList />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/artists/:id"
+                    element={
+                      <RequireAuth type={'full'}>
+                        <Artist />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/new-releases"
+                    element={
+                      <RequireAuth type={'full'}>
+                        <Releases />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route path="/" element={<Navigate to="/artists" />} />
+                  <Route path="*" element={<Navigate to="/artists" />} />
+                </Route>
+              </Routes>
+            </ProgressSpinnerW>
           </ReleasesContext.Provider>
         </ArtistContext.Provider>
       </LoginStatusContext.Provider>

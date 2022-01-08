@@ -8,7 +8,7 @@ import ArtistContext from '../../contexts/artists-context';
 import './artist.css';
 import AlbumCard from './Album-card';
 
-import { ProgressSpinner } from 'primereact/progressspinner';
+import ProgressSpinnerW from '../../shared/progress-spinner-w';
 
 const Artist = () => {
   let params = useParams();
@@ -39,28 +39,12 @@ const Artist = () => {
   }, [albums]);
 
   return (
-    <div className="w-full">
-      {albums.isLoading ? (
-        <div
-          style={{
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-          }}
-        >
-          <ProgressSpinner
-            style={{ width: '50px', height: '50px' }}
-            strokeWidth="8"
-            fill="var(--surface-ground)"
-            animationDuration=".5s"
-          />
-        </div>
-      ) : (
-        <div className="mt-2 p-fluid w-full flex flex-wrap justify-content-center">
-          <div className="w-2">
+    <ProgressSpinnerW loading={albums.isLoading}>
+      <div className="w-full">
+        <div className="mt-2 p-fluid w-full flex flex-wrap justify-content-center miss-container">
+          <div className="w-2 miss-left">
             <div
-              className="font-semibold mt-2 mb-2 h-10rem bg-primary bg-no-repeat bg-center bg-cover border-round"
+              className="font-semibold mt-2 mr-2 ml-2 h-10rem bg-primary bg-no-repeat bg-center bg-cover border-round"
               style={{
                 backgroundImage: `url(${artist.images[0].url})`,
               }}
@@ -70,11 +54,11 @@ const Artist = () => {
               </div>
             </div>
           </div>
-          <div className="w-10">
-            <div className="ml-2 mt-2 font-semibold surface-100 p-2 border-round">
+          <div className="w-10 miss-right">
+            <div className="m-2 font-semibold surface-100 p-2 border-round">
               ALBUMS MANQUANTS
             </div>
-            <div className="flex flex-wrap card-container  displayed-albums">
+            <div className="flex flex-wrap card-container">
               {albumsToDisplay.length === 0 && (
                 <p>Vous avez tous les albums de cet artiste</p>
               )}
@@ -95,8 +79,8 @@ const Artist = () => {
             </div>
           </div>
         </div>
-      )}
-    </div>
+      </div>
+    </ProgressSpinnerW>
   );
 };
 
