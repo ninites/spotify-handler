@@ -1,6 +1,6 @@
 import { Password } from 'primereact/password';
 import { Card } from 'primereact/card';
-import { useContext, useState } from 'react';
+import { useContext, useState, useRef } from 'react';
 import React from 'react';
 import { Divider } from 'primereact/divider';
 import { InputText } from 'primereact/inputtext';
@@ -8,10 +8,9 @@ import { Button } from 'primereact/button';
 import validator from 'validator';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import LoginStatusContext from '../../../contexts/login-status-context';
-import ToasterContext from '../../../contexts/toaster-context';
+import ToasterContext from '../../contexts/toaster-context';
 
-const Login = () => {
+const Subscribe = () => {
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -24,7 +23,6 @@ const Login = () => {
 
   const [submitLoading, setSubmitLoading] = useState(false);
   const navigate = useNavigate();
-  const [loginStatus, setLoginStatus] = useContext(LoginStatusContext);
 
   const toast = useContext(ToasterContext);
 
@@ -71,14 +69,13 @@ const Login = () => {
     if (valid) {
       setSubmitLoading(true);
       try {
-        await axios.post('/auth/login', form);
+        await axios.post('/users', form);
         toast.current.show({
           severity: 'success',
-          summary: 'Bienvenue',
-          detail: 'Profite BOGOSS',
+          summary: 'Bravo',
+          detail: 'Votre compte a bien ete crée',
         });
-        setLoginStatus({ ...loginStatus, app: true });
-        navigate('/auth/spotify/login');
+        navigate('/auth/login');
       } catch (err) {
         toast.current.show({
           severity: 'error',
@@ -93,7 +90,7 @@ const Login = () => {
   return (
     <div className="mt-8">
       <Card>
-        <div className="font-semibold">Login</div>
+        <div className="font-semibold">Souscrire</div>
         <div className="p-inputgroup mt-4">
           <span className="p-inputgroup-addon">
             <i className="pi pi-send"></i>
@@ -143,4 +140,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Subscribe;

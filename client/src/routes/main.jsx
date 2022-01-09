@@ -5,7 +5,7 @@ import LoginRedirect from '../views/login/logins/login-redirect.jsx';
 import Layout from '../layout/layout';
 import RequireAuth from '../views/login/auth/require-auth';
 import LoginSpotify from '../views/login/logins/login-spotify';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useRef } from 'react';
 import ArtistContext from '../contexts/artists-context';
 import useRequest from '../customhooks/useRequest';
 import Releases from '../views/releases/releases';
@@ -15,6 +15,9 @@ import { useCookies } from 'react-cookie';
 import Login from '../views/login/logins/login';
 import NoAuth from '../views/login/auth/no-auth';
 import FullAppLoadingContext from '../contexts/full-app-loading';
+import Subscribe from '../views/subscribe/subscribe';
+import ToasterContext from '../contexts/toaster-context';
+import { Toast } from 'primereact/toast';
 
 const Main = () => {
   const [cookies, setCookie] = useCookies(['spotify', 'app']);
@@ -36,6 +39,8 @@ const Main = () => {
   const artistsRequest = useRequest('get', '/spotify/followed-artists');
 
   const [fullAppLoading, setFullAppLoading] = useState(true);
+
+  const toast = useRef(null);
 
   useEffect(() => {
     const gotAnswer = artistsRequest.data.length !== 0;
@@ -69,68 +74,80 @@ const Main = () => {
   useContext(ReleasesContext);
   useContext(LoginStatusContext);
   useContext(FullAppLoadingContext);
+  useContext(ToasterContext);
 
   return (
     <BrowserRouter>
       <FullAppLoadingContext.Provider value={fullAppLoading}>
-        <LoginStatusContext.Provider value={[loginStatus, setLoginStatus]}>
-          <ArtistContext.Provider value={[artists, setArtists]}>
-            <ReleasesContext.Provider
-              value={{
-                data: [releases, setReleases],
-                refresh: [refetchReleases, setRefetchReleases],
-              }}
-            >
-              <Routes>
-                <Route element={<Layout />}>
-                  <Route path="login-redirect" element={<LoginRedirect />} />
-                  <Route
-                    path="login"
-                    element={
-                      <NoAuth>
-                        <Login />
-                      </NoAuth>
-                    }
-                  />
-                  <Route
-                    path="login/spotify"
-                    element={
-                      <RequireAuth type={'app'}>
-                        <LoginSpotify />
-                      </RequireAuth>
-                    }
-                  />
-                  <Route
-                    path="/artists"
-                    element={
-                      <RequireAuth type={'full'}>
-                        <ArtistsList />
-                      </RequireAuth>
-                    }
-                  />
-                  <Route
-                    path="/artists/:id"
-                    element={
-                      <RequireAuth type={'full'}>
-                        <Artist />
-                      </RequireAuth>
-                    }
-                  />
-                  <Route
-                    path="/new-releases"
-                    element={
-                      <RequireAuth type={'full'}>
-                        <Releases />
-                      </RequireAuth>
-                    }
-                  />
-                  <Route path="/" element={<Navigate to="/artists" />} />
-                  <Route path="*" element={<Navigate to="/artists" />} />
-                </Route>
-              </Routes>
-            </ReleasesContext.Provider>
-          </ArtistContext.Provider>
-        </LoginStatusContext.Provider>
+        <ToasterContext.Provider value={toast}>
+          <LoginStatusContext.Provider value={[loginStatus, setLoginStatus]}>
+            <ArtistContext.Provider value={[artists, setArtists]}>
+              <ReleasesContext.Provider
+                value={{
+                  data: [releases, setReleases],
+                  refresh: [refetchReleases, setRefetchReleases],
+                }}
+              >
+                <Toast ref={toast}></Toast>
+                <Routes>
+                  <Route element={<Layout />}>
+                    <Route path="login-redirect" element={<LoginRedirect />} />
+                    <Route
+                      path="login"
+                      element={
+                        <NoAuth>
+                          <Login />
+                        </NoAuth>
+                      }
+                    />
+                    <Route
+                      path="subscribe"
+                      element={
+                        <NoAuth>
+                          <Subscribe />
+                        </NoAuth>
+                      }
+                    />
+                    <Route
+                      path="login/spotify"
+                      element={
+                        <RequireAuth type={'app'}>
+                          <LoginSpotify />
+                        </RequireAuth>
+                      }
+                    />
+                    <Route
+                      path="/artists"
+                      element={
+                        <RequireAuth type={'full'}>
+                          <ArtistsList />
+                        </RequireAuth>
+                      }
+                    />
+                    <Route
+                      path="/artists/:id"
+                      element={
+                        <RequireAuth type={'full'}>
+                          <Artist />
+                        </RequireAuth>
+                      }
+                    />
+                    <Route
+                      path="/new-releases"
+                      element={
+                        <RequireAuth type={'full'}>
+                          <Releases />
+                        </RequireAuth>
+                      }
+                    />
+                    <Route path="/" element={<Navigate to="/artists" />} />
+                    <Route path="*" element={<Navigate to="/artists" />} />
+                  </Route>
+                </Routes>
+              </ReleasesContext.Provider>
+            </ArtistContext.Provider>
+          </LoginStatusContext.Provider>
+        </ToasterContext.Provider>
       </FullAppLoadingContext.Provider>
     </BrowserRouter>
   );

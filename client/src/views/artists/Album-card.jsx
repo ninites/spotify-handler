@@ -1,11 +1,12 @@
 import { Card } from 'primereact/card';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { Button } from 'primereact/button';
-import { useState, useRef, useContext , useEffect } from 'react';
+import { useState, useRef, useContext, useEffect } from 'react';
 import axios from 'axios';
 import ReleasesContext from '../../contexts/releases-context';
 import { BREAKPOINT } from '../../global/variables';
 import useWindowSize from '../../customhooks/useWindowSize';
+import ToasterContext from '../../contexts/toaster-context';
 
 const CARD_STYLE = {
   desktop: { width: '20rem', height: '350px' },
@@ -22,6 +23,8 @@ const AlbumCard = ({ album, refetchAlbums }) => {
 
   const windowSize = useWindowSize();
   const [cardStyle, setCardStyle] = useState(CARD_STYLE.desktop);
+
+  const toast = useContext(ToasterContext);
 
   const computeTitle = (title) => {
     if (!title) {
@@ -52,8 +55,17 @@ const AlbumCard = ({ album, refetchAlbums }) => {
       await axios.post('/spotify/saved-albums', data);
       setRefetch(!refetch);
       setRefetchReleases(!refetchReleases);
+      toast.current.show({
+        severity: 'success',
+        summary: 'DONE',
+        detail: 'Album ajouté',
+      });
     } catch (err) {
-      console.log(err);
+      toast.current.show({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Un probléme a eu lieu pendant l ajout',
+      });
     }
   };
 
