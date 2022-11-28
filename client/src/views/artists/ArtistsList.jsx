@@ -34,30 +34,45 @@ const ArtistsList = () => {
           Mes artistes
         </div>
         <div className="flex flex-wrap card-container justify-content-center">
-          {artists.map((artist) => {
-            return (
-              <div
-                key={artist.id}
-                className="flex-initial flex align-items-center justify-content-center m-2"
-              >
-                <Card
-                  header={
-                    <Link to={`/artists/${artist.id}`}>
-                      <div
-                        className="h-10rem bg-primary bg-no-repeat bg-center bg-cover cursor-pointer"
-                        style={{
-                          backgroundImage: `url(${artist.images[2].url})`,
-                        }}
-                      ></div>
-                    </Link>
-                  }
-                  style={cardStyle}
+          {artists
+            .sort((a, b) => {
+              if (a.name < b.name) {
+                return -1;
+              }
+              if (a.name > b.name) {
+                return 1;
+              }
+              return 0;
+            })
+            .map((artist) => {
+              return (
+                <div
+                  key={artist.id}
+                  className="flex-initial flex align-items-center justify-content-center m-2"
                 >
-                  <div className="font-semibold">{artist.name}</div>
-                </Card>
-              </div>
-            );
-          })}
+                  <Card
+                    header={
+                      <Link to={`/artists/${artist.id}`}>
+                        <div
+                          className="h-10rem bg-primary bg-no-repeat bg-center bg-cover cursor-pointer"
+                          style={{
+                            backgroundImage: `url(${
+                              artist &&
+                              artist.images &&
+                              artist.images[2] &&
+                              artist.images[2].url
+                            })`,
+                          }}
+                        ></div>
+                      </Link>
+                    }
+                    style={cardStyle}
+                  >
+                    <div className="font-semibold">{artist.name}</div>
+                  </Card>
+                </div>
+              );
+            })}
         </div>
       </div>
     </ProgressSpinnerW>

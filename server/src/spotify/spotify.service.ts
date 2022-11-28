@@ -156,6 +156,7 @@ export class SpotifyService {
         return await this.authService.refreshTokenCheck(user);
       }),
     );
+    console.log('missing releases start');
 
     // GET MISSINGS NEW RELEASES
     const usersMissingAlbums = await Promise.all(
@@ -168,7 +169,7 @@ export class SpotifyService {
         };
       }),
     );
-
+    console.log('missing releases end');
     // REPLACE THEM IN APP DB
     const result = await Promise.all(
       usersMissingAlbums.map(async (user) => {
@@ -265,10 +266,12 @@ export class SpotifyService {
       'id',
     );
 
-    const silentNewReleases = await this.getSilentReleases(
-      userArtistsIds,
-      userInfos,
-    );
+    // const silentNewReleases = await this.getSilentReleases(
+    //   userArtistsIds,
+    //   userInfos,
+    // );
+
+    const silentNewReleases = [];
 
     const newReleases = newReleasesItems.filter((item) => {
       const artistIsPresent = item.artists.map((artist) => {
@@ -285,10 +288,7 @@ export class SpotifyService {
   private async getSilentReleases(artistsIds: string[], userInfos: UserInfos) {
     const list = await Promise.all(
       artistsIds.map(async (id: string) => {
-        const artistAlbumsResponse = await this.getAllArtistAlbums(
-          id,
-          userInfos,
-        );
+        const artistAlbumsResponse = await this.getArtistAlbums(id, userInfos);
         const artistAlbums = artistAlbumsResponse.body.items;
         const newHiddenReleases = artistAlbums.filter((album) => {
           const isInDatesRange = this.datesService.isInRange(

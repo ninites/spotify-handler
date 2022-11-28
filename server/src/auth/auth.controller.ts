@@ -25,6 +25,9 @@ export class AuthController {
       password: password || '',
     };
     const token = await this.authService.login(infos);
+    console.log('====================================');
+    console.log(token);
+    console.log('====================================');
     res.cookie('app', token);
   }
 

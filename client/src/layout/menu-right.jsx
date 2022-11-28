@@ -43,7 +43,12 @@ const MenuRight = ({ loginState }) => {
           <div
             className="w-2 flex-initial flex align-items-center justify-content-center mr-2 bg-no-repeat bg-cover bg-center"
             style={{
-              backgroundImage: `url(${artist.images[0].url})`,
+              backgroundImage: `url(${
+                artist &&
+                artist.images &&
+                artist.images[0] &&
+                artist.images[0].url
+              })`,
             }}
           ></div>
         )}

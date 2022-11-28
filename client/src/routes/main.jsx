@@ -43,6 +43,7 @@ const Main = () => {
   const toast = useRef(null);
 
   useEffect(() => {
+    console.log(artists);
     const gotAnswer = artistsRequest.data.length !== 0;
     if (gotAnswer) {
       const { artists } = artistsRequest.data.body;

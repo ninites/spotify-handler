@@ -16,6 +16,8 @@ export class SpotifyErrorInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       catchError((err) => {
+        console.log(err);
+        
         const status = this.getStatus(err.statusCode);
         throw new HttpException(errorBracket + err.message, status);
       }),

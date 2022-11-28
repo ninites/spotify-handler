@@ -77,6 +77,9 @@ const Login = () => {
           summary: 'Bienvenue',
           detail: 'Profite BOGOSS',
         });
+        console.log('====================================');
+        console.log(loginStatus);
+        console.log('====================================');
         setLoginStatus({ ...loginStatus, app: true });
         navigate('/auth/spotify/login');
       } catch (err) {
