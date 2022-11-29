@@ -1,21 +1,14 @@
 import useRequest from '../../customhooks/useRequest';
-import { Card } from 'primereact/card';
-import { Image } from 'primereact/image';
-
-const CardHeader = ({ playlist }) => {
-  return <Image src={playlist.images[0].url} alt="Image Text" />;
-};
+import PlayListCard from './PlaylistCard';
+import './Playlists.css';
 
 const Playlists = () => {
   const playlistsResponse = useRequest('get', '/spotify/playlists');
   const { data = [], error = '', isLoading = true } = playlistsResponse;
   const playlists = data;
-  console.log('====================================');
-  console.log(data);
-  console.log('====================================');
 
   return (
-    <div>
+    <div className="playlist-container">
       {isLoading ? (
         <div>LOADING</div>
       ) : (
@@ -25,13 +18,7 @@ const Playlists = () => {
               return playlist.owner.display_name === 'ninites';
             })
             .map((playlist) => {
-              return (
-                <div key={playlist.id}>
-                  <Card header={<CardHeader playlist={playlist} />}>
-                    Content
-                  </Card>
-                </div>
-              );
+              return <PlayListCard key={playlist.id} playlist={playlist} />;
             })}
         </>
       )}

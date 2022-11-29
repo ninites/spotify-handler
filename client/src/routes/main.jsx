@@ -77,6 +77,10 @@ const Main = () => {
                     </RequireAuth>
                   }
                 />
+                <Route
+                  path="/playlists/:id"
+                  element={<RequireAuth type={'full'}>PLAF</RequireAuth>}
+                />
                 <Route path="/" element={<Navigate to="/playlists" />} />
                 <Route path="*" element={<Navigate to="/playlists" />} />
               </Route>
