@@ -27,9 +27,7 @@ const RequireAuth = ({ children, type }) => {
 
     return children;
   };
-  console.log('====================================');
-  console.log(type);
-  console.log('====================================');
+
   switch (type) {
     case 'full':
       return fullAuth();

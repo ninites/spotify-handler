@@ -3,7 +3,7 @@ import { Menubar } from 'primereact/menubar';
 import './layout.css';
 import { useNavigate } from 'react-router-dom';
 
-import { useContext, useEffect, useRef } from 'react';
+import { useCallback, useContext} from 'react';
 
 import LoginStatusContext from '../contexts/login-status-context';
 
@@ -13,32 +13,21 @@ const Layout = () => {
   const [loginStatus, setLoginStatus] = useContext(LoginStatusContext);
   const navigate = useNavigate();
 
-  const redirect = (url) => {
-    navigate(url);
-  };
+  const computeMenu = useCallback(() => {
+    const redirect = (url) => {
+      navigate(url);
+    };
 
-  const computeMenu = () => {
     const items = [
       {
-        label: 'Mes artistes',
-        // icon: 'pi pi-fw pi-star',
-        command: () => redirect('artists'),
-        disabled: !loginStatus.app || !loginStatus.spotify,
-      },
-      {
-        label: 'Les sorties',
-        // icon: 'pi pi-fw pi-star',
-        command: () => redirect('new-releases'),
+        label: 'Playlists',
+        command: () => redirect('playlists'),
         disabled: !loginStatus.app || !loginStatus.spotify,
       },
     ];
 
     return items;
-  };
-
-  useEffect(() => {
-    computeMenu();
-  }, [loginStatus]);
+  }, [loginStatus.app, loginStatus.spotify, navigate]);
 
   return (
     <div>

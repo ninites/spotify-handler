@@ -33,6 +33,10 @@ export class AuthService {
     'user-follow-read',
     'user-library-modify',
     'user-follow-modify',
+    'playlist-read-private',
+    'playlist-read-collaborative',
+    'playlist-modify-public',
+    'playlist-modify-private',
   ];
 
   async login({ email, password }) {

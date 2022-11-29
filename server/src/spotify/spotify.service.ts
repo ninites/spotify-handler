@@ -15,7 +15,7 @@ export class SpotifyService {
     private readonly mailService: MailService,
     private readonly schedulerRegistry: SchedulerRegistry,
     private readonly datesService: DatesService,
-  ) {}
+  ) { }
 
   private readonly clientId = process.env.SPOTIFY_CLIENTID;
   private readonly clientSecret = process.env.SPOTIFY_CLIENTSECRET;
@@ -132,6 +132,17 @@ export class SpotifyService {
     const albums = await spotifyApi.getArtistAlbums(id, configuration);
 
     return albums;
+  }
+
+  async getPlaylists(userInfos: UserInfos) {
+    const spotifyApi = this.setSpotifyApi(userInfos, {
+      setAccess: true,
+      setRefresh: false,
+    });
+    const { spotify } = userInfos
+    const userId = spotify.spotify_id
+    const response = await spotifyApi.getUserPlaylists(userId);
+    return response.body.items;
   }
 
   ////// SPECIFIC APP METHODS /////
