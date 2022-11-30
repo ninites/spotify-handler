@@ -13,6 +13,7 @@ import Subscribe from '../views/subscribe/subscribe';
 import ToasterContext from '../contexts/toaster-context';
 import { Toast } from 'primereact/toast';
 import Playlists from '../views/playlists/Playlists.jsx';
+import PlaylistAlbum from "../views/playlists/PlaylistAlbums.jsx"
 
 const Main = () => {
   const [cookies, setCookie] = useCookies(['spotify', 'app']);
@@ -79,7 +80,11 @@ const Main = () => {
                 />
                 <Route
                   path="/playlists/:id"
-                  element={<RequireAuth type={'full'}>PLAF</RequireAuth>}
+                  element={
+                    <RequireAuth type={'full'}>
+                      <PlaylistAlbum></PlaylistAlbum>
+                    </RequireAuth>
+                  }
                 />
                 <Route path="/" element={<Navigate to="/playlists" />} />
                 <Route path="*" element={<Navigate to="/playlists" />} />

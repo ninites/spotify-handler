@@ -6,12 +6,14 @@ import { User, UserSchema } from 'src/schemas/user.schema';
 import { UtilsModule } from 'src/utils/utils.module';
 import { UsersModule } from 'src/users/users.module';
 import { SpotifyService } from 'src/spotify/spotify.service';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     UtilsModule,
     UsersModule,
+    HttpModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, SpotifyService],

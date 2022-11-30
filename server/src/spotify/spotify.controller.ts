@@ -18,7 +18,7 @@ import { SpotifyService } from './spotify.service';
 @UseInterceptors(SpotifyErrorInterceptor)
 @Controller('spotify')
 export class SpotifyController {
-  constructor(private readonly spotifyService: SpotifyService) { }
+  constructor(private readonly spotifyService: SpotifyService) {}
 
   @Get('saved-albums')
   getMySavedAlbums(@Req() req) {
@@ -90,5 +90,18 @@ export class SpotifyController {
   @Get('playlists')
   getPlaylist(@Req() req) {
     return this.spotifyService.getPlaylists(req.userInfos);
+  }
+
+  @Get('playlists/:id')
+  getPlaylistById(@Param('id') id: string, @Req() req) {
+    return this.spotifyService.getPlaylistById(req.userInfos, id);
+  }
+
+  @Get('playlists/:id/tracks')
+  getPlaylistAndTracksByPlaylistId(@Param('id') id: string, @Req() req) {
+    return this.spotifyService.getPlaylistAndTracksByPlaylistId(
+      req.userInfos,
+      id,
+    );
   }
 }

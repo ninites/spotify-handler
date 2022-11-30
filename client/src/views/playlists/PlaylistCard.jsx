@@ -1,6 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 
 const PlayListCard = ({ playlist }) => {
+  console.log('====================================');
+  console.log(playlist);
+  console.log('====================================');
   const navigate = useNavigate();
 
   const goToPlaylist = () => {

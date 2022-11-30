@@ -6,6 +6,8 @@ import { UsersService } from 'src/users/users.service';
 import { MailService } from 'src/utils/mail/mail.service';
 import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
 import { DatesService } from 'src/utils/dates/dates.service';
+import { HttpService } from '@nestjs/axios';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class SpotifyService {
@@ -15,7 +17,8 @@ export class SpotifyService {
     private readonly mailService: MailService,
     private readonly schedulerRegistry: SchedulerRegistry,
     private readonly datesService: DatesService,
-  ) { }
+    private readonly httpService: HttpService,
+  ) {}
 
   private readonly clientId = process.env.SPOTIFY_CLIENTID;
   private readonly clientSecret = process.env.SPOTIFY_CLIENTSECRET;
@@ -139,10 +142,60 @@ export class SpotifyService {
       setAccess: true,
       setRefresh: false,
     });
-    const { spotify } = userInfos
-    const userId = spotify.spotify_id
+    const { spotify } = userInfos;
+    const userId = spotify.spotify_id;
     const response = await spotifyApi.getUserPlaylists(userId);
     return response.body.items;
+  }
+
+  async getPlaylistById(userInfos: UserInfos, playlistId: string) {
+    const spotifyApi = this.setSpotifyApi(userInfos, {
+      setAccess: true,
+      setRefresh: false,
+    });
+    const response = await spotifyApi.getPlaylist(playlistId);
+    return response.body;
+  }
+
+  async getPlaylistAndTracksByPlaylistId(
+    userInfos: UserInfos,
+    playlistId: string,
+  ) {
+    const spotifyApi = this.setSpotifyApi(userInfos, {
+      setAccess: true,
+      setRefresh: false,
+    });
+
+    let stopCondition = false;
+    let tracks = [];
+    let turns = 0;
+    const config = {
+      offset: 0,
+      limit: 100,
+      fields: 'items',
+    };
+
+    do {
+      const response = await spotifyApi.getPlaylistTracks(playlistId, config);
+      config.offset += config.limit;
+      const { items } = response.body;
+      tracks = [...tracks, ...items];
+      if (items.length < config.limit) {
+        stopCondition = true;
+      }
+      turns += 1;
+    } while (!stopCondition && turns < 20);
+
+    const albumSorted = {};
+    tracks.forEach((track) => {
+      const { id } = track.track.album;
+      if (!albumSorted[id]) {
+        albumSorted[id] = [];
+      }
+      albumSorted[id].push(track);
+    });
+
+    return albumSorted;
   }
 
   ////// SPECIFIC APP METHODS /////

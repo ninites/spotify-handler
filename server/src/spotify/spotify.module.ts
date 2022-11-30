@@ -6,11 +6,13 @@ import { User, UserSchema } from 'src/schemas/user.schema';
 import { UtilsModule } from 'src/utils/utils.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { UsersModule } from 'src/users/users.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     UtilsModule,
+    HttpModule,
     AuthModule,
     UsersModule,
   ],
