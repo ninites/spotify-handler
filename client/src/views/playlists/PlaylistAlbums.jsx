@@ -23,12 +23,23 @@ const PlaylistAlbums = () => {
         <div>
           {Object.values(data).map((album = [], index) => {
             return (
-              <div key={index} className="p-card p-p-2" style={{ margin: '10px' }}>
-                <h2>{album[0].track.album.name}</h2>
+              <div
+                key={index}
+                className="p-card p-p-2"
+                style={{ margin: '10px' }}
+              >
+                <h2>{album[0].track.track.album.name}</h2>
                 <div>
                   {album.map((trackObject, index) => {
-                    const { track } = trackObject;
-                    return <div key={index}>{track.name}</div>;
+                    const { track } = trackObject.track;
+                    const { loved } = trackObject;
+
+                    return (
+                      <div key={index}>
+                        <div>{track.name}</div>
+                        {loved ? <div>J'aime</div> : <div></div>}
+                      </div>
+                    );
                   })}
                 </div>
               </div>

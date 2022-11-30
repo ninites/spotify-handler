@@ -171,7 +171,7 @@ export class SpotifyService {
     let turns = 0;
     const config = {
       offset: 0,
-      limit: 100,
+      limit: 50,
       fields: 'items',
     };
 
@@ -179,7 +179,15 @@ export class SpotifyService {
       const response = await spotifyApi.getPlaylistTracks(playlistId, config);
       config.offset += config.limit;
       const { items } = response.body;
-      tracks = [...tracks, ...items];
+      const tracksIds = items.map((item) => item.track.id);
+      const lovedResponse = await spotifyApi.containsMySavedTracks(tracksIds);
+      const tracksAdded = [];
+      items.forEach((item, index) => {
+        const result = { track: item, loved: lovedResponse.body[index] };
+        tracksAdded.push(result);
+      });
+
+      tracks = [...tracks, ...tracksAdded];
       if (items.length < config.limit) {
         stopCondition = true;
       }
@@ -187,13 +195,16 @@ export class SpotifyService {
     } while (!stopCondition && turns < 20);
 
     const albumSorted = {};
-    tracks.forEach((track) => {
-      const { id } = track.track.album;
+    for (const track of tracks) {
+      console.log('====================================');
+      console.log(track);
+      console.log('====================================');
+      const { id } = track.track.track.album;
       if (!albumSorted[id]) {
         albumSorted[id] = [];
       }
       albumSorted[id].push(track);
-    });
+    }
 
     return albumSorted;
   }
