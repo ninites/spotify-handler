@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -102,6 +103,16 @@ export class SpotifyController {
     return this.spotifyService.getPlaylistAndTracksByPlaylistId(
       req.userInfos,
       id,
+    );
+  }
+
+  @Post('playlists/:id/tracks')
+  deletePlaylistTracks(@Param('id') id: string, @Req() req, @Body() payload) {
+    const tracksURIs = payload.data;
+    return this.spotifyService.deletePlaylistTracks(
+      req.userInfos,
+      id,
+      tracksURIs,
     );
   }
 }

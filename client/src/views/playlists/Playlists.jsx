@@ -1,6 +1,7 @@
 import useRequest from '../../customhooks/useRequest';
 import PlayListCard from './PlaylistCard';
 import './Playlists.css';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const Playlists = () => {
   const playlistsResponse = useRequest('get', '/spotify/playlists');
@@ -10,7 +11,7 @@ const Playlists = () => {
   return (
     <div className="playlist-container">
       {isLoading ? (
-        <div>LOADING</div>
+       <ProgressSpinner/>
       ) : (
         <>
           {playlists

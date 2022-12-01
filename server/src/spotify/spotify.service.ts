@@ -6,8 +6,6 @@ import { UsersService } from 'src/users/users.service';
 import { MailService } from 'src/utils/mail/mail.service';
 import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
 import { DatesService } from 'src/utils/dates/dates.service';
-import { HttpService } from '@nestjs/axios';
-import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class SpotifyService {
@@ -17,7 +15,6 @@ export class SpotifyService {
     private readonly mailService: MailService,
     private readonly schedulerRegistry: SchedulerRegistry,
     private readonly datesService: DatesService,
-    private readonly httpService: HttpService,
   ) {}
 
   private readonly clientId = process.env.SPOTIFY_CLIENTID;
@@ -175,38 +172,80 @@ export class SpotifyService {
       fields: 'items',
     };
 
-    do {
-      const response = await spotifyApi.getPlaylistTracks(playlistId, config);
-      config.offset += config.limit;
-      const { items } = response.body;
-      const tracksIds = items.map((item) => item.track.id);
-      const lovedResponse = await spotifyApi.containsMySavedTracks(tracksIds);
-      const tracksAdded = [];
-      items.forEach((item, index) => {
-        const result = { track: item, loved: lovedResponse.body[index] };
-        tracksAdded.push(result);
-      });
+    try {
+      do {
+        const response = await spotifyApi.getPlaylistTracks(playlistId, config);
+        config.offset += config.limit;
+        const { items } = response.body;
+        const tracksIds = items.map((item) => item.track.id);
+        const lovedResponse = await spotifyApi.containsMySavedTracks(tracksIds);
+        const tracksAdded = [];
+        items.forEach((item, index) => {
+          const result = { track: item, loved: lovedResponse.body[index] };
+          tracksAdded.push(result);
+        });
 
-      tracks = [...tracks, ...tracksAdded];
-      if (items.length < config.limit) {
-        stopCondition = true;
-      }
-      turns += 1;
-    } while (!stopCondition && turns < 20);
+        tracks = [...tracks, ...tracksAdded];
+        if (items.length < config.limit) {
+          stopCondition = true;
+        }
+        turns += 1;
+      } while (!stopCondition && turns < 20);
 
-    const albumSorted = {};
-    for (const track of tracks) {
-      console.log('====================================');
-      console.log(track);
-      console.log('====================================');
-      const { id } = track.track.track.album;
-      if (!albumSorted[id]) {
-        albumSorted[id] = [];
+      const albumSorted = {};
+      for (const track of tracks) {
+        const { id } = track.track.track.album;
+        if (!albumSorted[id]) {
+          albumSorted[id] = [];
+        }
+        albumSorted[id].push(track);
       }
-      albumSorted[id].push(track);
+
+      return albumSorted;
+    } catch (error) {
+      console.log('====================================');
+      console.log(error);
+      console.log('====================================');
+      const err = new Error();
+      err.stack = error;
+      err.message = error.message;
+      throw err;
     }
+  }
 
-    return albumSorted;
+  async deletePlaylistTracks(
+    userInfos: UserInfos,
+    playlistId: string,
+    tracksURIs: string[],
+  ) {
+    const spotifyApi = this.setSpotifyApi(userInfos, {
+      setAccess: true,
+      setRefresh: false,
+    });
+
+    try {
+      const { snapshot_id } = await this.getPlaylistById(userInfos, playlistId);
+      const options = {
+        snapshot_id: snapshot_id,
+      };
+      const result = await spotifyApi.removeTracksFromPlaylist(
+        playlistId,
+        tracksURIs,
+        options,
+      );
+      console.log('====================================');
+      console.log(result.statusCode);
+      console.log('====================================');
+      return result;
+    } catch (error) {
+      console.log('====================================');
+      console.log(error);
+      console.log('====================================');
+      const err = new Error();
+      err.stack = error;
+      err.message = error.message;
+      throw err;
+    }
   }
 
   ////// SPECIFIC APP METHODS /////
