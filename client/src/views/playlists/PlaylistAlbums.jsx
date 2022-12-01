@@ -40,7 +40,8 @@ const PlaylistAlbums = () => {
           {Object.values(albums).map((album = [], index) => {
             return (
               <PlaylistAlbum
-                album={album}
+                album={album.tracks}
+                addedAt={album.added_at}
                 key={index}
                 playlistId={id}
                 removeAlbumFromList={removeAlbumFromList}

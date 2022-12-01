@@ -4,6 +4,7 @@ import axios from 'axios';
 
 const PlaylistAlbum = ({
   album,
+  addedAt,
   playlistId,
   removeAlbumFromList,
   removeTracksFromAlbum,
@@ -16,6 +17,10 @@ const PlaylistAlbum = ({
   const albumCover = album[0].track.track.album.images[1].url;
   const gotNotLikedTracks = album.some((track) => !track.loved);
   const nothinLikedTracks = album.every((track) => !track.loved);
+
+  console.log('====================================');
+  console.log(addedAt);
+  console.log('====================================');
 
   const deleteNotLikeTracks = async (tracks) => {
     try {

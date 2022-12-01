@@ -196,9 +196,15 @@ export class SpotifyService {
       for (const track of tracks) {
         const { id } = track.track.track.album;
         if (!albumSorted[id]) {
-          albumSorted[id] = [];
+          albumSorted[id] = {
+            added_at: track.track.added_at,
+          };
         }
-        albumSorted[id].push(track);
+
+        if (!albumSorted[id].tracks) {
+          albumSorted[id].tracks = [];
+        }
+        albumSorted[id].tracks.push(track);
       }
 
       return albumSorted;
