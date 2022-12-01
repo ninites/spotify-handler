@@ -39,16 +39,16 @@ const PlaylistAlbum = ({
 
   const deleteAlbum = async (tracks) => {
     try {
-      setButtonLoading({ ...buttonsLoading, tracks: true });
+      setButtonLoading({ ...buttonsLoading, album: true });
       const tracksURI = tracks.map((track) => {
         return { uri: track.track.track.uri };
       });
       const endpoint = '/spotify/playlists/' + playlistId + '/tracks';
       await axios.post(endpoint, { data: tracksURI });
-      removeAlbumFromList(album[0].track.track.album.id)
-      setButtonLoading({ ...buttonsLoading, tracks: false });
+      removeAlbumFromList(album[0].track.track.album.id);
+      setButtonLoading({ ...buttonsLoading, album: false });
     } catch (error) {
-      setButtonLoading({ ...buttonsLoading, tracks: false });
+      setButtonLoading({ ...buttonsLoading, album: false });
       console.log('====================================');
       console.log(error);
       console.log('====================================');

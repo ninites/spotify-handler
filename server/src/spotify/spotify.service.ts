@@ -228,21 +228,15 @@ export class SpotifyService {
       const options = {
         snapshot_id: snapshot_id,
       };
-      // const result = await spotifyApi.removeTracksFromPlaylist(
-      //   playlistId,
-      //   tracksURIs,
-      //   options,
-      // );
-      // console.log('====================================');
-      // console.log(result.statusCode);
-      // console.log('====================================');
-      // return result;
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(true);
-        }, 2000);
-      });
-      return true;
+      const result = await spotifyApi.removeTracksFromPlaylist(
+        playlistId,
+        tracksURIs,
+        options,
+      );
+      console.log('====================================');
+      console.log(result.statusCode);
+      console.log('====================================');
+      return result;
     } catch (error) {
       console.log('====================================');
       console.log(error);
