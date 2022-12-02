@@ -8,7 +8,7 @@ services:
     ports:
       - "80:80"
     environment:
-      - REACT_APP_API_BASE_URL=http://217.182.171.139
+      - REACT_APP_API_BASE_URL=http://217.182.171.139:3000
     container_name: front-container
     restart: always
   backend:
