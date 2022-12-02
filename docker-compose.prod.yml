@@ -1,0 +1,29 @@
+version: "3.6"
+
+services:
+  frontend:
+    build:
+      context: ./client
+      dockerfile: ./Dockerfile.prod
+    ports:
+      - "3005:3005"
+    environment:
+      - REACT_APP_API_BASE_URL=http://217.182.171.139
+    container_name: front-container
+    restart: always
+  backend:
+    context: ./server
+    dockerfile: ./Dockerfile.prod
+    ports:
+      - "3000:3000"
+    container_name: back-container
+    restart: always
+    links:
+      - mongo
+  mongo:
+    image: mongo:4.0
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=api
+      - MONGO_INITDB_ROOT_PASSWORD=docker1234
