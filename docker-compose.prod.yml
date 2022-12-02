@@ -6,7 +6,7 @@ services:
       context: ./client
       dockerfile: ./Dockerfile.prod
     ports:
-      - "3005:3005"
+      - "80:80"
     environment:
       - REACT_APP_API_BASE_URL=http://217.182.171.139
     container_name: front-container
