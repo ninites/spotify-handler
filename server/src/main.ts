@@ -7,7 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const options: CorsOptions = {
     allowedHeaders:
-      'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe',
+      'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe,authorization',
     origin: 'http://217.182.171.139',
     methods: 'GET,POST,DELETE,OPTIONS',
     preflightContinue: false,
