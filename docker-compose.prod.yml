@@ -22,6 +22,8 @@ services:
       - mongo
   mongo:
     image: mongo:4.0
+    volumes:
+      - "./mongo/data:/data/db"
     ports:
       - "27017:27017"
     environment:
