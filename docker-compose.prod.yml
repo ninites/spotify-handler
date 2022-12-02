@@ -12,8 +12,9 @@ services:
     container_name: front-container
     restart: always
   backend:
-    context: ./server
-    dockerfile: ./Dockerfile.prod
+    build:
+      context: ./server
+      dockerfile: ./Dockerfile.prod
     ports:
       - "3000:3000"
     container_name: back-container
