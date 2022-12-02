@@ -11,7 +11,7 @@ import { useState } from 'react';
 
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 axios.defaults.baseURL = BASE_URL;
-console.log(BASE_URL);
+
 function App() {
   const [cookies, setCookie] = useCookies(['spotify', 'app']);
   const [errorDialog, setErrorDialog] = useState({

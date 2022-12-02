@@ -38,7 +38,7 @@ const Main = () => {
   useContext(ToasterContext);
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={'/spot'}>
       <FullAppLoadingContext.Provider value={fullAppLoading}>
         <ToasterContext.Provider value={toast}>
           <LoginStatusContext.Provider value={[loginStatus, setLoginStatus]}>
