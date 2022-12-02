@@ -10,6 +10,9 @@ import { ConfirmDialog } from 'primereact/confirmdialog';
 import { useState } from 'react';
 
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+console.log("PUTAIN", BASE_URL);
+
 axios.defaults.baseURL = BASE_URL;
 
 function App() {
