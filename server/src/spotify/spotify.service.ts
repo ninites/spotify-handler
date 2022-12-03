@@ -15,7 +15,7 @@ export class SpotifyService {
     private readonly mailService: MailService,
     private readonly schedulerRegistry: SchedulerRegistry,
     private readonly datesService: DatesService,
-  ) {}
+  ) { }
 
   private readonly clientId = process.env.SPOTIFY_CLIENTID;
   private readonly clientSecret = process.env.SPOTIFY_CLIENTSECRET;

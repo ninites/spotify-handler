@@ -8,7 +8,7 @@ async function bootstrap() {
   const options: CorsOptions = {
     allowedHeaders:
       'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe,authorization',
-    origin: 'http://217.182.171.139',
+    origin: true,
     methods: 'GET,POST,DELETE,OPTIONS',
     preflightContinue: false,
     optionsSuccessStatus: 204,

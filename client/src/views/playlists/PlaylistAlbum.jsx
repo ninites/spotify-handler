@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { Button } from 'primereact/button';
-import axios from 'axios';
+import { useState } from "react";
+import { Button } from "primereact/button";
+import axios from "axios";
+import "./Playlists.css";
 
 const PlaylistAlbum = ({
   album,
@@ -18,10 +19,6 @@ const PlaylistAlbum = ({
   const gotNotLikedTracks = album.some((track) => !track.loved);
   const nothinLikedTracks = album.every((track) => !track.loved);
 
-  console.log('====================================');
-  console.log(addedAt);
-  console.log('====================================');
-
   const deleteNotLikeTracks = async (tracks) => {
     try {
       setButtonLoading({ ...buttonsLoading, tracks: true });
@@ -30,15 +27,15 @@ const PlaylistAlbum = ({
         .map((track) => {
           return { uri: track.track.track.uri };
         });
-      const endpoint = '/spotify/playlists/' + playlistId + '/tracks';
+      const endpoint = "/spotify/playlists/" + playlistId + "/tracks";
       await axios.post(endpoint, { data: tracksURI });
       removeTracksFromAlbum(album[0].track.track.album.id);
       setButtonLoading({ ...buttonsLoading, tracks: false });
     } catch (error) {
       setButtonLoading({ ...buttonsLoading, tracks: false });
-      console.log('====================================');
+      console.log("====================================");
       console.log(error);
-      console.log('====================================');
+      console.log("====================================");
     }
   };
 
@@ -48,26 +45,27 @@ const PlaylistAlbum = ({
       const tracksURI = tracks.map((track) => {
         return { uri: track.track.track.uri };
       });
-      const endpoint = '/spotify/playlists/' + playlistId + '/tracks';
+      const endpoint = "/spotify/playlists/" + playlistId + "/tracks";
       await axios.post(endpoint, { data: tracksURI });
       removeAlbumFromList(album[0].track.track.album.id);
       setButtonLoading({ ...buttonsLoading, album: false });
     } catch (error) {
       setButtonLoading({ ...buttonsLoading, album: false });
-      console.log('====================================');
+      console.log("====================================");
       console.log(error);
-      console.log('====================================');
+      console.log("====================================");
     }
   };
 
   return (
     <div className="p-card m-4 flex flex-wrap">
-      <img
-        src={albumCover}
-        alt=""
-        style={{ height: 'fit-content', position: 'relative' }}
-        className="border-round-left"
-      ></img>
+      <div className="album-cover-wrapper">
+        <img
+          src={albumCover}
+          alt=""
+          className="border-round-left album-cover"
+        ></img>
+      </div>
       <div className="p-4 flex-1">
         <div className="flex justify-content-end">
           {gotNotLikedTracks && !nothinLikedTracks ? (
@@ -101,10 +99,10 @@ const PlaylistAlbum = ({
               {loved ? (
                 <i
                   className="pi pi-heart-fill ml-2"
-                  style={{ color: 'red' }}
+                  style={{ color: "red" }}
                 ></i>
               ) : (
-                <i className="pi pi-heart" style={{ color: 'red' }}></i>
+                <i className="pi pi-heart" style={{ color: "red" }}></i>
               )}
             </div>
           );
