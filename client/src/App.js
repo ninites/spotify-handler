@@ -11,8 +11,6 @@ import { useState } from 'react';
 
 const BASE_URL = "http://217.182.171.139:3000" || process.env.REACT_APP_API_BASE_URL;
 
-console.log("PUTAIN", BASE_URL);
-
 axios.defaults.baseURL = BASE_URL;
 
 function App() {
