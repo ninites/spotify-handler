@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Button } from "primereact/button";
 import axios from "axios";
 import "./Playlists.css";
+import dayjs from "dayjs";
+import localizedFormat from "dayjs/plugin/localizedFormat";
 
 const PlaylistAlbum = ({
   album,
@@ -14,10 +16,23 @@ const PlaylistAlbum = ({
     tracks: false,
     album: false,
   });
-  const albumName = album[0].track.track.album.name;
-  const albumCover = album[0].track.track.album.images[1].url;
+
+  const selectedAlbum = album[0].track.track;
+  const albumName = selectedAlbum.album.name;
+  const albumCover = selectedAlbum.album.images[1].url;
+  const artistName = selectedAlbum.artists[0].name;
+  const releaseDate = formatDate(selectedAlbum.album.release_date);
   const gotNotLikedTracks = album.some((track) => !track.loved);
   const nothinLikedTracks = album.every((track) => !track.loved);
+
+  function formatDate(date) {
+    if (!date) {
+      return "";
+    }
+    dayjs.extend(localizedFormat);
+    const formattedDate = dayjs(date).format("LL");
+    return formattedDate;
+  }
 
   const deleteNotLikeTracks = async (tracks) => {
     try {
@@ -29,7 +44,7 @@ const PlaylistAlbum = ({
         });
       const endpoint = "/spotify/playlists/" + playlistId + "/tracks";
       await axios.post(endpoint, { data: tracksURI });
-      removeTracksFromAlbum(album[0].track.track.album.id);
+      removeTracksFromAlbum(selectedAlbum.album.id);
       setButtonLoading({ ...buttonsLoading, tracks: false });
     } catch (error) {
       setButtonLoading({ ...buttonsLoading, tracks: false });
@@ -47,7 +62,7 @@ const PlaylistAlbum = ({
       });
       const endpoint = "/spotify/playlists/" + playlistId + "/tracks";
       await axios.post(endpoint, { data: tracksURI });
-      removeAlbumFromList(album[0].track.track.album.id);
+      removeAlbumFromList(selectedAlbum.album.id);
       setButtonLoading({ ...buttonsLoading, album: false });
     } catch (error) {
       setButtonLoading({ ...buttonsLoading, album: false });
@@ -85,7 +100,9 @@ const PlaylistAlbum = ({
             className="p-button-rounded p-button-danger ml-2"
           />
         </div>
-        <h2>{albumName}</h2>
+        <h3>{artistName}</h3>
+        <h3>{albumName}</h3>
+        <h6>{releaseDate}</h6>
         {album.map((trackObject, index) => {
           const { track } = trackObject.track;
           const { loved } = trackObject;
