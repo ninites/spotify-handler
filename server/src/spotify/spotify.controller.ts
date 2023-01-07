@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   Post,
@@ -15,6 +14,7 @@ import { NoAuth } from 'src/meta-data/no-auth';
 import { CreateSpotifyDto } from './dto/create-spotify.dto';
 import { SpotifyErrorInterceptor } from './spotify-error.interceptor';
 import { SpotifyService } from './spotify.service';
+
 @UseGuards(AuthSpotifyGuard)
 @UseInterceptors(SpotifyErrorInterceptor)
 @Controller('spotify')
@@ -114,5 +114,15 @@ export class SpotifyController {
       id,
       tracksURIs,
     );
+  }
+
+  @Get('konami/:id')
+  launchKonami(@Param('id') id: string, @Req() req) {
+    switch (id) {
+      case 'cb19f3cf-93f6-4ecd-ae90-cc08f293d68c':
+        return this.spotifyService.unlikeLikedAlbums(req.userInfos);
+      default:
+        break;
+    }
   }
 }

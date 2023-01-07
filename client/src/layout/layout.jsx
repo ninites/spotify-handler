@@ -24,6 +24,11 @@ const Layout = () => {
         command: () => redirect("playlists"),
         disabled: !loginStatus.app || !loginStatus.spotify,
       },
+      {
+        label: "Konami",
+        command: () => redirect("konami"),
+        disabled: !loginStatus.app || !loginStatus.spotify,
+      },
     ];
 
     return items;

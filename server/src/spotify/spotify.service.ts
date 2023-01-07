@@ -15,7 +15,7 @@ export class SpotifyService {
     private readonly mailService: MailService,
     private readonly schedulerRegistry: SchedulerRegistry,
     private readonly datesService: DatesService,
-  ) { }
+  ) {}
 
   private readonly clientId = process.env.SPOTIFY_CLIENTID;
   private readonly clientSecret = process.env.SPOTIFY_CLIENTSECRET;
@@ -252,6 +252,75 @@ export class SpotifyService {
       err.message = error.message;
       throw err;
     }
+  }
+
+  async unlikeLikedAlbums(userInfos: UserInfos) {
+    const spotifyApi = this.setSpotifyApi(userInfos, {
+      setAccess: true,
+      setRefresh: false,
+    });
+
+    let stopCondition = false;
+    let turns = 0;
+    const config = {
+      offset: 0,
+      limit: 50,
+      fields: 'items',
+    };
+
+    try {
+      do {
+        const { body } = await spotifyApi.getMySavedAlbums(config);
+        const { items } = body;
+        for (const { album } of items) {
+          const tracksIds = album.tracks.items.map((track) => {
+            return track.id;
+          });
+          const response = await spotifyApi.containsMySavedTracks(tracksIds);
+          const gotLovedTracks = response.body.some(
+            (lovedTrack) => lovedTrack === true,
+          );
+          if (gotLovedTracks) {
+            console.log(
+              `ALBUM ${album.name} GOT LOVED TRACKS | START TO UNLIKE IT`,
+            );
+            await spotifyApi.removeFromMySavedAlbums([album.id]);
+            console.log(
+              `ALBUM ${album.name} GOT LOVED TRACKS | SUCCESS TO UNLIKE IT`,
+            );
+          }
+        }
+
+        config.offset += config.limit;
+        if (items.length < config.limit) {
+          stopCondition = true;
+        }
+        turns += 1;
+      } while (!stopCondition && turns < 40);
+    } catch (error) {
+      if (error.statusCode === 429) {
+        console.log('JE FORCE SUR L API RETRY DANS 10 SEC');
+        await this.delay(30000);
+        console.log('10 SEC OK JE RETRY');
+        return this.unlikeLikedAlbums(userInfos);
+      }
+
+      console.log('====================================');
+      console.log(error);
+      console.log('====================================');
+      const err = new Error();
+      err.stack = error;
+      err.message = error.message;
+      throw err;
+    }
+  }
+
+  async delay(ms = 5000) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(true);
+      }, ms);
+    });
   }
 
   ////// SPECIFIC APP METHODS /////
