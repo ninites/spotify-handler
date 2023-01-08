@@ -254,7 +254,7 @@ export class SpotifyService {
     }
   }
 
-  async unlikeLikedAlbums(userInfos: UserInfos, retry = 0) {
+  async unlikeLikedAlbums(userInfos: UserInfos, offset = 0, retry = 0) {
     const spotifyApi = this.setSpotifyApi(userInfos, {
       setAccess: true,
       setRefresh: false,
@@ -263,7 +263,7 @@ export class SpotifyService {
     let stopCondition = false;
     let turns = 0;
     const config = {
-      offset: 0,
+      offset: offset,
       limit: 50,
       fields: 'items',
     };
@@ -278,9 +278,7 @@ export class SpotifyService {
           const tracksIds = album.tracks.items.map((track) => {
             return track.id;
           });
-          console.log('START RECUP LOVED TRACKS');
           const response = await spotifyApi.containsMySavedTracks(tracksIds);
-          console.log('SUCCESS RECUP LOVED TRACKS');
           const gotLovedTracks = response.body.some(
             (lovedTrack) => lovedTrack === true,
           );
@@ -292,6 +290,8 @@ export class SpotifyService {
             console.log(
               `ALBUM ${album.name} GOT LOVED TRACKS | SUCCESS TO UNLIKE IT`,
             );
+          } else {
+            console.log(` NO LOVED TRACK | ALBUM ${album.name}`);
           }
         }
 
@@ -309,8 +309,10 @@ export class SpotifyService {
         console.log(`JE FORCE SUR L API RETRY DANS ${intRetryAfter} SEC`);
         await this.delay(retryAfterInMs);
         retry += 1;
-        console.log(` ${intRetryAfter} SEC OK JE RETRY POUR LA ${retry} fois`);
-        return this.unlikeLikedAlbums(userInfos, retry);
+        console.log(
+          ` ${intRetryAfter} SEC OK JE RETRY POUR LA ${retry} fois en OFFSET = ${config.offset}`,
+        );
+        return this.unlikeLikedAlbums(userInfos, config.offset, retry);
       }
 
       console.log('====================================');
@@ -321,6 +323,8 @@ export class SpotifyService {
       err.message = error.message;
       throw err;
     }
+    console.log('DONE');
+    return true;
   }
 
   async delay(ms = 5000) {
