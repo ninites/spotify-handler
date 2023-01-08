@@ -270,13 +270,17 @@ export class SpotifyService {
 
     try {
       do {
+        console.log('START RECUP ALBUM LIKE');
         const { body } = await spotifyApi.getMySavedAlbums(config);
         const { items } = body;
+        console.log(`SUCCESS RECUP ALBUM LIKE ${items.length}`);
         for (const { album } of items) {
           const tracksIds = album.tracks.items.map((track) => {
             return track.id;
           });
+          console.log('START RECUP LOVED TRACKS');
           const response = await spotifyApi.containsMySavedTracks(tracksIds);
+          console.log('SUCCESS RECUP LOVED TRACKS');
           const gotLovedTracks = response.body.some(
             (lovedTrack) => lovedTrack === true,
           );
