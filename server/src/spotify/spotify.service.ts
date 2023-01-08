@@ -254,7 +254,7 @@ export class SpotifyService {
     }
   }
 
-  async unlikeLikedAlbums(userInfos: UserInfos) {
+  async unlikeLikedAlbums(userInfos: UserInfos, retry = 0) {
     const spotifyApi = this.setSpotifyApi(userInfos, {
       setAccess: true,
       setRefresh: false,
@@ -298,11 +298,15 @@ export class SpotifyService {
         turns += 1;
       } while (!stopCondition && turns < 40);
     } catch (error) {
-      if (error.statusCode === 429) {
-        console.log('JE FORCE SUR L API RETRY DANS 10 SEC');
-        await this.delay(30000);
-        console.log('10 SEC OK JE RETRY');
-        return this.unlikeLikedAlbums(userInfos);
+      if (error.statusCode === 429 && retry < 20) {
+        const retryAfter = error.headers['retry-after'] || '30';
+        const intRetryAfter = parseInt(retryAfter);
+        const retryAfterInMs = intRetryAfter * 1000;
+        console.log(`JE FORCE SUR L API RETRY DANS ${intRetryAfter} SEC`);
+        await this.delay(retryAfterInMs);
+        retry += 1;
+        console.log(` ${intRetryAfter} SEC OK JE RETRY POUR LA ${retry} fois`);
+        return this.unlikeLikedAlbums(userInfos, retry);
       }
 
       console.log('====================================');
