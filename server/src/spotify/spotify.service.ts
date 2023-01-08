@@ -254,7 +254,12 @@ export class SpotifyService {
     }
   }
 
-  async unlikeLikedAlbums(userInfos: UserInfos, offset = 0, retry = 0) {
+  async unlikeLikedAlbums(
+    userInfos: UserInfos,
+    offset = 0,
+    retry = 0,
+    fullNoLove = false,
+  ) {
     const spotifyApi = this.setSpotifyApi(userInfos, {
       setAccess: true,
       setRefresh: false,
@@ -272,6 +277,7 @@ export class SpotifyService {
       do {
         console.log('START RECUP ALBUM LIKE');
         const { body } = await spotifyApi.getMySavedAlbums(config);
+        fullNoLove = false;
         const { items } = body;
         console.log(`SUCCESS RECUP ALBUM LIKE ${items.length}`);
         for (const { album } of items) {
@@ -291,6 +297,7 @@ export class SpotifyService {
               `ALBUM ${album.name} GOT LOVED TRACKS | SUCCESS TO UNLIKE IT`,
             );
           } else {
+            fullNoLove = true;
             console.log(` NO LOVED TRACK | ALBUM ${album.name}`);
           }
         }
@@ -309,10 +316,16 @@ export class SpotifyService {
         console.log(`JE FORCE SUR L API RETRY DANS ${intRetryAfter} SEC`);
         await this.delay(retryAfterInMs);
         retry += 1;
+        const finalOffset = fullNoLove ? config.offset : 0;
         console.log(
-          ` ${intRetryAfter} SEC OK JE RETRY POUR LA ${retry} fois en OFFSET = ${config.offset}`,
+          ` ${intRetryAfter} SEC OK JE RETRY POUR LA ${retry} fois en OFFSET = ${finalOffset}`,
         );
-        return this.unlikeLikedAlbums(userInfos, config.offset, retry);
+        return this.unlikeLikedAlbums(
+          userInfos,
+          finalOffset,
+          retry,
+          fullNoLove,
+        );
       }
 
       console.log('====================================');
