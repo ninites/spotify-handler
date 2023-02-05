@@ -31,6 +31,7 @@ const Main = () => {
   useEffect(() => {
     const gotSpotifyCookie = cookies.spotify ? true : false;
     const gotAppCookie = cookies.app ? true : false;
+    console.log(cookies);
     setLoginStatus({ app: gotAppCookie, spotify: gotSpotifyCookie });
   }, [cookies]);
 

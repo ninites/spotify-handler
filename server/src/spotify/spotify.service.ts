@@ -177,19 +177,29 @@ export class SpotifyService {
         const response = await spotifyApi.getPlaylistTracks(playlistId, config);
         config.offset += config.limit;
         const { items } = response.body;
-        const tracksIds = items.map((item) => item.track.id);
-        const lovedResponse = await spotifyApi.containsMySavedTracks(tracksIds);
-        const tracksAdded = [];
-        items.forEach((item, index) => {
-          const result = { track: item, loved: lovedResponse.body[index] };
-          tracksAdded.push(result);
-        });
 
-        tracks = [...tracks, ...tracksAdded];
-        if (items.length < config.limit) {
+        if (items.length === 0) {
           stopCondition = true;
         }
-        turns += 1;
+
+        if (!stopCondition) {
+          const tracksIds = items.map((item) => item.track.id);
+
+          const lovedResponse = await spotifyApi.containsMySavedTracks(
+            tracksIds,
+          );
+          const tracksAdded = [];
+          items.forEach((item, index) => {
+            const result = { track: item, loved: lovedResponse.body[index] };
+            tracksAdded.push(result);
+          });
+
+          tracks = [...tracks, ...tracksAdded];
+          if (items.length < config.limit) {
+            stopCondition = true;
+          }
+          turns += 1;
+        }
       } while (!stopCondition && turns < 20);
 
       const albumSorted = {};
@@ -278,6 +288,7 @@ export class SpotifyService {
         console.log('START RECUP ALBUM LIKE');
         const { body } = await spotifyApi.getMySavedAlbums(config);
         fullNoLove = false;
+        const fullNoLoveArray = [];
         const { items } = body;
         console.log(`SUCCESS RECUP ALBUM LIKE ${items.length}`);
         for (const { album } of items) {
@@ -297,11 +308,11 @@ export class SpotifyService {
               `ALBUM ${album.name} GOT LOVED TRACKS | SUCCESS TO UNLIKE IT`,
             );
           } else {
-            fullNoLove = true;
+            fullNoLoveArray.push(true);
             console.log(` NO LOVED TRACK | ALBUM ${album.name}`);
           }
         }
-
+        fullNoLove = fullNoLoveArray.length === items.length;
         config.offset += config.limit;
         if (items.length < config.limit) {
           stopCondition = true;
@@ -357,7 +368,7 @@ export class SpotifyService {
   @Cron(CronExpression.EVERY_WEEKEND, { name: 'new-releases' })
   async getNewReleasesCron() {
     console.log('[CRON/GET NEW RELEASES] START');
-
+    return true;
     // PREVENT CRON LOADING TWICE
     const job = this.schedulerRegistry.getCronJob('new-releases');
     job.stop();
