@@ -21,7 +21,7 @@ services:
       - '3443:3443'
     environment:
       - FRONT_REDIRECT_URI=http://217.182.171.139/login-redirect
-      - SPOTIFY_CALLBACK=http://217.182.171.139:3000/auth/spotify/callback
+      - SPOTIFY_CALLBACK=https://217.182.171.139:3443/auth/spotify/callback
       - HOST_URL=http://217.182.171.139:3000/
     container_name: back-spotify-handler-container
     restart: always
