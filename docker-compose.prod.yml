@@ -1,4 +1,4 @@
-version: "3.6"
+version: '3.6'
 
 services:
   frontend:
@@ -6,8 +6,8 @@ services:
       context: ./client
       dockerfile: ./Dockerfile.prod
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     environment:
       - REACT_APP_API_BASE_URL=http://217.182.171.139:3000
     container_name: front-spotify-handler-container
@@ -17,7 +17,8 @@ services:
       context: ./server
       dockerfile: ./Dockerfile.prod
     ports:
-      - "3000:3000"
+      - '3000:3000'
+      - '3443:3443'
     environment:
       - FRONT_REDIRECT_URI=http://217.182.171.139/login-redirect
       - SPOTIFY_CALLBACK=http://217.182.171.139:3000/auth/spotify/callback
@@ -29,9 +30,9 @@ services:
   mongo:
     image: mongo:4.0
     volumes:
-      - "./mongo/data:/data/db"
+      - './mongo/data:/data/db'
     ports:
-      - "27017:27017"
+      - '27017:27017'
     environment:
       - MONGO_INITDB_ROOT_USERNAME=api
       - MONGO_INITDB_ROOT_PASSWORD=docker1234

@@ -5,5 +5,5 @@ WORKDIR /app/server
 COPY . /app/server
 RUN cd /app/server
 RUN npm install
-EXPOSE 3000
+EXPOSE 3000 3443
 CMD ["npm", "run", "start:dev"]
