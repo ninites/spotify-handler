@@ -18,8 +18,8 @@ jobs:
 
       - name: Connect to VPS via SSH and build Docker Compose
         run: |
-          sshpass -p ${{ secrets.SSH_PASSWORD }} ssh -o StrictHostKeyChecking=no -tt ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} "cd spotify-handler && git pull && sudo docker-compose -f docker-compose.prod.yml build"
+          sshpass -p ${{ secrets.SSH_PASSWORD }} ssh -o StrictHostKeyChecking=no -tt ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} "cd spotify-handler && git pull && sudo docker-compose --file docker-compose.prod.yml build"
       
       - name: Run Docker Compose
         run: |
-          sshpass -p ${{ secrets.SSH_PASSWORD }} ssh -o StrictHostKeyChecking=no -tt ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} "cd spotify-handler && sudo docker-compose -f docker-compose.prod.yml up -d"
+          sshpass -p ${{ secrets.SSH_PASSWORD }} ssh -o StrictHostKeyChecking=no -tt ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} "cd spotify-handler && sudo docker-compose --file docker-compose.prod.yml up -d"
