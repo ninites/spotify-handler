@@ -13,18 +13,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Connect to VPS via SSH
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: Dreamer06
+      - name: Install sshpass
+        run: sudo apt-get update && sudo apt-get -y install sshpass
 
-      - name: Go to the right folder
-        run: cd spotify-handler
-
-      - name: Git pull
-        run: git pull
-
-      - name: Build Docker Compose
-        run: sudo docker-compose --file docker-compose.prod.yml build
+      - name: Connect to VPS via SSH build Docker Compose and UP it
+        run: |
+          sshpass -p ${{ secrets.SSH_PASSWORD }} ssh -o StrictHostKeyChecking=no -tt ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} "cd spotify-handler && git pull && sudo docker-compose --file docker-compose.prod.yml build && sudo docker-compose --file docker-compose.prod.yml up -d"
