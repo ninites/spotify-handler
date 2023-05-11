@@ -18,7 +18,7 @@ jobs:
         with:
           username: ${{ secrets.VPS_USERNAME }}
           host: ${{ secrets.VPS_HOST }}
-          password: ${{ secrets.SSH_PASSWORD }}
+          password: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd spotify-handler
             git pull
@@ -29,7 +29,7 @@ jobs:
         with:
           username: ${{ secrets.VPS_USERNAME }}
           host: ${{ secrets.VPS_HOST }}
-          password: ${{ secrets.SSH_PASSWORD }}
+          password: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd spotify-handler
             sudo docker-compose --file docker-compose.prod.yml up -d
