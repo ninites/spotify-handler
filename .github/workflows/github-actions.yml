@@ -13,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Connect to VPS via SSH and build Docker Compose
+      - name: Docker compos build
         uses: appleboy/ssh-action@master
         with:
           username: ${{ secrets.VPS_USERNAME }}
@@ -24,7 +24,7 @@ jobs:
             git pull
             sudo docker-compose --file docker-compose.prod.yml build
 
-      - name: Run Docker Compose
+      - name: Docker compose up
         uses: appleboy/ssh-action@master
         with:
           username: ${{ secrets.VPS_USERNAME }}
