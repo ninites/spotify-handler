@@ -21,17 +21,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Go to the right folder
-        run: cd /spotify-handler
+        run: cd spotify-handler
 
       - name: Git pull
         run: git pull
 
-      - name: Docker compose build
-        uses: actions/exec@v2
-        with:
-          command: sudo docker compose --file docker-compose.prod.yml build 
-
-      - name: Docker compose 
-        uses: actions/exec@v2
-        with:
-          command: sudo docker compose --file docker-compose.prod.yml up -d
+      - name: Build Docker Compose
+        run: sudo docker-compose --file docker-compose.prod.yml build
