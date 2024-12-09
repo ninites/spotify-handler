@@ -16,7 +16,7 @@ const Playlists = () => {
         <>
           {playlists
             .filter((playlist) => {
-              return playlist.owner.display_name === 'ninites';
+              return playlist?.owner?.display_name === 'ninites';
             })
             .map((playlist) => {
               return <PlayListCard key={playlist.id} playlist={playlist} />;
